@@ -378,7 +378,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         
     #for i in range(iterations):
     fail_count=0
-    for i in range(10000): # generate a pilot proposal distribution
+    for i in range(20000): # generate a pilot proposal distribution
     
         # ----------------------------------------------------------------------------------------------
         # -- The first iteration seeds the chain
@@ -622,7 +622,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
     proposal_mean=np.mean(for_cov, axis=0)
             
-    for i in range(10000,iterations):   
+    for i in range(20000,iterations):   
     
         # ----------------------------------------------------------------------------------------------
         # -- Subsequent iterations build the chain
