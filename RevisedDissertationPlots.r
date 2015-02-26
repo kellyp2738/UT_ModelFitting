@@ -5,13 +5,20 @@
 ## -----------------------------------------------------------------------------------
 
 ## Where are the data?
+##  ON THE BACKUP HARD DRIVE FOR THE WORK COMPUTER
 ##  ~/Desktop/Multivar_Metropolis_200D_200R
 ##  ~/Desktop/Multivar_Metropolis_400D_200R
 ##  ~/Desktop/Multivar_Metropolis_200D_400R
 ##  ~/Desktop has some of the plots
 ##  ~/Dropbox/ModelFitting/FutureProof/Multivariate_Metropolis_Plots_Copy has copies of the plots
+##  ON THE NEW LAPTOP
+##  ~/Desktop/MV_UnequalPopSizes/MV_200_600_fixed
+##  ~/Desktop/MV_UnequalPopSizes/MV_600_200_fixed
+##  ~/Desktop/MV_UnequalPopSizes/MV_200_800_fixed
+##  ~/Desktop/MV_UnequalPopSizes/MV_800_200_fixed
 
-source("/Users/kellypierce/Dropbox/ModelFitting/R Scripts/MCMC_Source.r")
+## note: home directory on new laptop is 'kelly' not 'kellypierce':
+source("/Users/kelly/Dropbox/2014&Older/ModelFitting/R Scripts/MCMC_Source.r")
 library(scales)
 library(coda)
 library(magicaxis)
@@ -24,13 +31,15 @@ library(magicaxis)
 
 # this for-loop takes the multiple chains stored in folders 'Multivar_Metropolis...' and resorts the data
 # parsed data is written to file
-setwd('~/Desktop')
+#setwd('~/Desktop/MV_UnequalPopSizes/')
+setwd('~/Desktop/MV_ConstantHostPop/')
 #dirs<-grep('Multivar_Metropolis', list.files(getwd()), value=TRUE)
 dirs<-grep('MV_', list.files(getwd()), value=TRUE)
-for(dir in dirs){
+for(dir in dirs[4:5]){ #temporarily just do the first scenario
   #setwd('~/Desktop/BlockUpdate_ChangeKE')
   #setwd('~/Desktop/FinalModelMCMCRuns/SymTrans')
-  setwd(file.path('~/Desktop/', dir))
+  #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
+  setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
   #chain.dirs<-grep('Run', list.files(getwd()), value=TRUE)
   chain.dirs<-grep('Multivar', list.files(getwd()), value=TRUE)
   #chain.dirs<-grep('rhoTD_chain', list.files(getwd()), value=TRUE)
@@ -46,13 +55,14 @@ for(dir in dirs){
   dABprev.burn<-c()
   for(chain in chain.dirs){ #a bunch of chain 1 files are messed up for some reason...
     #setwd(file.path('~/Desktop/FinalModelMCMCRuns/SymTrans', dir))
-    setwd(file.path('~/Desktop/', dir))
+    #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
+    setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
     print(chain)
     print(getwd())
     setwd(file.path(getwd(), chain))
     dir.contents<-list.files(getwd())
     print(getwd())
-    file<-dir.contents[1]
+    file<-dir.contents[1] # the proper MCMC chain is the first file in each directory
     data<-read.csv(file)
     
     #sort data without removing burnin (for plotting chain comparisons)
@@ -69,12 +79,13 @@ for(dir in dirs){
     rhoTD.chains.burn<-cbind(rhoTD.chains.burn, est.file.burn[,2])
     rhoDT.chains.burn<-cbind(rhoDT.chains.burn, est.file.burn[,3])
     loglik.burn<-cbind(loglik.burn, est.file.burn[,28])
-    aPrev.burn<-c(aPrev.burn, est.file.burn[,25])
-    dPrev.burn<-c(dPrev.burn, est.file.burn[,26])
-    dABprev.burn<-c(dABprev.burn, est.file.burn[,27])
+    aPrev.burn<-cbind(aPrev.burn, est.file.burn[,25])
+    dPrev.burn<-cbind(dPrev.burn, est.file.burn[,26])
+    dABprev.burn<-cbind(dABprev.burn, est.file.burn[,27])
   }
   #write the sorted data to file
-  setwd(file.path('~/Desktop/', dir))
+  #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
+  setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
   write.csv(pref.chains, file='preference_multi_chains.csv')
   write.csv(rhoTD.chains, file='rhoTD_multi_chains.csv')
   write.csv(rhoDT.chains, file='rhoDT_multi_chains.csv')
@@ -93,13 +104,14 @@ for(dir in dirs){
 
 # read in replicate chains, coerce to MCMC objects, and perform the gelman-rubin convergence test
 #pdf(file='~/Desktop/Multivariate_Metropolis_MultpleChains.pdf', height=5, width=7)
-for(dir in dirs){
+for(dir in dirs[4:5]){
   # change to appropriate directory
-  setwd('~/Desktop/')
-  setwd(file.path(getwd(), dir))
+  #setwd('~/Desktop/MV_UnequalPopSizes/')
+  setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
+  #setwd(file.path(getwd(), dir))
   print(dir)
   
-  # read data, select appropriate columns, exponentiate, and set column names
+  # read data, select appropriate columns (first column is iteration number, which isn't necessary), exponentiate, and set column names
   pref<-read.csv("preference_multi_chains.csv")
   pref<-exp(pref[,2:length(pref[1,])])
   names(pref)<-rep('pref', length(pref[1,]))
@@ -117,17 +129,30 @@ for(dir in dirs){
   par(mar=c(4,4,4,2))
   
   ## preference ##
-  png(file=file.path('~/Desktop/',paste(dir,'Chains.png')), height=30, width=30, units='cm', res=300)
-  par(mfrow=c(3,1), mar=c(5,6,2,2))
+  # how many chains?
+  nc<-length(pref)
+  png(file=file.path(getwd(),paste(dir,'Pref_Chains.png')), height=10*nc, width=30, units='cm', res=300)
+  par(mfrow=c(nc,1), mar=c(5,6,2,2))
   #layout(matrix(c(1,2),1,2), widths=c(5,2))
-  plot(1:length(pref[,1]), pref[,1], type='l', col=line.colors[1], 
-       main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
-       ylab='', las=1)
-  mtext(expression(phi['D']), side=2, line=4, cex=1.5)
-  for(i in 2:length(pref[1,])){
-    lines(1:length(pref[,i]), pref[,i], col=line.colors[i])
+  for(i in seq(1,nc)){
+    plot(1:length(pref[,i]), pref[,i], type='l', col=line.colors[i], 
+         main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
+         ylab='', las=1)
+    mtext(expression(phi['D']), side=2, line=4, cex=1.5)
+    abline(v=20000, lty=2, lwd=3)
   }
-  abline(v=10000, lty=2, lwd=3)
+  dev.off()
+  ## plot chains on top of each other
+  #png(file=file.path('~/Desktop/',paste(dir,'Chains.png')), height=30, width=30, units='cm', res=300)
+  #par(mfrow=c(3,1), mar=c(5,6,2,2))
+  #plot(1:length(pref[,1]), pref[,1], type='l', col=line.colors[1], 
+  #     main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
+  #     ylab='', las=1)
+  #mtext(expression(phi['D']), side=2, line=4, cex=1.5)
+  #for(i in 2:length(pref[1,])){
+  #  lines(1:length(pref[,i]), pref[,i], col=line.colors[i])
+  #}
+  #abline(v=10000, lty=2, lwd=3)
   #A=hist(pref[,1], plot=FALSE, breaks=100)
   #plot(y=A$mids, x=A$counts, type='l', lwd=2, col=alpha(line.colors[i]), 
   #     xlim=c(0,max(A$counts)), ylim=c(0,1), xlab='Counts', yaxt='n', ylab="")
@@ -137,15 +162,28 @@ for(dir in dirs){
   #}
   
   ## rhoTD ##
+  nt<-length(rhoTD)
+  png(file=file.path(getwd(),paste(dir,'RhoTD_Chains.png')), height=10*nt, width=30, units='cm', res=300)
+  par(mfrow=c(nt,1), mar=c(5,6,2,2))
   #layout(matrix(c(1,2),1,2), widths=c(5,2))
-  plot(1:length(rhoTD[,1]), rhoTD[,1], type='l', col=line.colors[1], 
-       main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
-       xlab='Iteration',ylab='')
-  mtext(expression(rho['TD']), side=2, line=4, cex=1.5)
-  for(i in 2:length(rhoTD[1,])){
-    lines(1:length(rhoTD[,i]), rhoTD[,i], col=line.colors[i])
+  for(i in seq(1,nt)){
+    plot(1:length(rhoTD[,i]), rhoTD[,i], type='l', col=line.colors[i], 
+         main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
+         ylab='', las=1)
+    mtext(expression(rho['TD']), side=2, line=4, cex=1.5)
+    abline(v=20000, lty=2, lwd=3)
   }
-  abline(v=10000, lty=2, lwd=3)
+  dev.off()
+  # plot chains on top of each other (requires uncommenting lines 141-142 that call the png() function)
+  #layout(matrix(c(1,2),1,2), widths=c(5,2))
+  #plot(1:length(rhoTD[,1]), rhoTD[,1], type='l', col=line.colors[1], 
+  #     main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
+  #     xlab='Iteration',ylab='')
+  #mtext(expression(rho['TD']), side=2, line=4, cex=1.5)
+  #for(i in 2:length(rhoTD[1,])){
+  #  lines(1:length(rhoTD[,i]), rhoTD[,i], col=line.colors[i])
+  #}
+  #abline(v=10000, lty=2, lwd=3)
   #C=hist(rhoTD[,1], plot=FALSE, breaks=25)
   #plot(y=C$mids, x=C$counts, type='l', lwd=2, col=alpha(line.colors[1]), 
   #     xlim=c(0, max(C$counts)), ylim=c(0,1), yaxt='n', xlab='Counts')
@@ -155,15 +193,28 @@ for(dir in dirs){
   #}
   
   ## rhoDT ##
+  nd<-length(rhoDT)
+  png(file=file.path(getwd(),paste(dir,'RhoDT_Chains.png')), height=10*nd, width=30, units='cm', res=300)
+  par(mfrow=c(nd,1), mar=c(5,6,2,2))
   #layout(matrix(c(1,2),1,2), widths=c(5,2))
-  plot(1:length(rhoDT[,1]), rhoDT[,1], type='l', col=line.colors[1], 
-       main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
-       xlab='Iteration',ylab='')
-  mtext(expression(rho['DT']), side=2, line=4, cex=1.5)
-  for(i in 2:length(rhoDT[1,])){
-    lines(1:length(rhoDT[,i]), rhoDT[,i], col=line.colors[i])
+  for(i in seq(1,nd)){
+    plot(1:length(rhoDT[,i]), rhoDT[,i], type='l', col=line.colors[i], 
+         main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
+         ylab='', las=1)
+    mtext(expression(rho['DT']), side=2, line=4, cex=1.5)
+    abline(v=20000, lty=2, lwd=3)
   }
-  abline(v=10000, lty=2, lwd=3)
+  dev.off()
+  # plot chains on top of each other (requires uncommenting lines 141-142 that call the png() function)
+  #layout(matrix(c(1,2),1,2), widths=c(5,2))
+  #plot(1:length(rhoDT[,1]), rhoDT[,1], type='l', col=line.colors[1], 
+  #     main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
+  #     xlab='Iteration',ylab='')
+  #mtext(expression(rho['DT']), side=2, line=4, cex=1.5)
+  #for(i in 2:length(rhoDT[1,])){
+  #  lines(1:length(rhoDT[,i]), rhoDT[,i], col=line.colors[i])
+  #}
+  #abline(v=10000, lty=2, lwd=3)
   #E=hist(rhoDT[,1], plot=FALSE, breaks=30)
   #plot(y=E$mids, x=E$counts, type='l', lwd=2, col=alpha(line.colors[1]), 
   #     xlim=c(0, max(E$counts)), ylim=c(0,1), yaxt='n', xlab='Counts')
@@ -171,7 +222,8 @@ for(dir in dirs){
   #  G=hist(rhoTD[,i], plot=FALSE, breaks=30)
   #  lines(y=G$mids, x=G$counts, lwd=2, col=alpha(line.colors[i], 0.9))   
   #}
-  dev.off()
+  #dev.off()
+  
   # convert chains into mcmc objects and create mcmc lists
   rhoDT.mcmc<-list()
   rhoTD.mcmc<-list()
