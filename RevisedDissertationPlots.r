@@ -35,7 +35,7 @@ library(magicaxis)
 setwd('~/Desktop/MV_ConstantHostPop/')
 #dirs<-grep('Multivar_Metropolis', list.files(getwd()), value=TRUE)
 dirs<-grep('MV_', list.files(getwd()), value=TRUE)
-for(dir in dirs[4:5]){ #temporarily just do the first scenario
+for(dir in dirs){ 
   #setwd('~/Desktop/BlockUpdate_ChangeKE')
   #setwd('~/Desktop/FinalModelMCMCRuns/SymTrans')
   #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
@@ -104,7 +104,7 @@ for(dir in dirs[4:5]){ #temporarily just do the first scenario
 
 # read in replicate chains, coerce to MCMC objects, and perform the gelman-rubin convergence test
 #pdf(file='~/Desktop/Multivariate_Metropolis_MultpleChains.pdf', height=5, width=7)
-for(dir in dirs[4:5]){
+for(dir in dirs){
   # change to appropriate directory
   #setwd('~/Desktop/MV_UnequalPopSizes/')
   setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
@@ -246,128 +246,246 @@ for(dir in dirs[4:5]){
   gelman.plot(rhoTD.mcmc, main=paste('rhoTD', dir))
 }
 
+## Decent evidence for convergence in 100/900, 300/700, and 500/500
+## Will only consider scenarios where deer << alternative hosts (maybe universially true, esp. w/respect to counts of animals if not biomass)
 
 ## -----------------------------------------------------------------------------------
 ## 3. Look at marginal posterior probabilities for the estimated parameters
 ## -----------------------------------------------------------------------------------
 
-## Preference Posterior
+## Preference Posterior (see DissertationPlots.r for the code from the dissertation; those lines have been deleted from this code)
 
-#pref2.2<-read.csv('~/Desktop/Multivar_Metropolis_200D_200R/preference_burned_multi_chains.csv')
-#pref2.4<-read.csv('~/Desktop/Multivar_Metropolis_200D_400R/preference_burned_multi_chains.csv')
-#pref4.2<-read.csv('~/Desktop/Multivar_Metropolis_400D_200R/preference_burned_multi_chains.csv')
+## Read in the relevant data
+pref1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/preference_burned_multi_chains.csv')
+pref3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/preference_burned_multi_chains.csv')
+pref5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/preference_burned_multi_chains.csv')
 
-pref2.2<-read.csv('~/Desktop/MV_200_200_fixed/preference_burned_multi_chains.csv')
-pref2.4<-read.csv('~/Desktop/MV_200_400_fixed/preference_burned_multi_chains.csv')
-pref4.2<-read.csv('~/Desktop/MV_400_200_fixed/preference_burned_multi_chains.csv')
+rhoDT1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/rhoDT_burned_multi_chains.csv')
+rhoDT3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/rhoDT_burned_multi_chains.csv')
+rhoDT5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/rhoDT_burned_multi_chains.csv')
 
-pref2.2.hist<-hist(exp(pref2.2[,2]), breaks=70, plot=FALSE)
-pref2.4.hist<-hist(exp(pref2.4[,2]), breaks=70, plot=FALSE)
-pref4.2.hist<-hist(exp(pref4.2[,2]), breaks=70, plot=FALSE)
+rhoTD1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/rhoTD_burned_multi_chains.csv')
+rhoTD3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/rhoTD_burned_multi_chains.csv')
+rhoTD5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/rhoTD_burned_multi_chains.csv')
 
-pref2.2.95<-quantile(exp(pref2.2[,2]), probs=c(0.025, 0.975))
-pref2.4.95<-quantile(exp(pref2.4[,2]), probs=c(0.025, 0.975))
-pref4.2.95<-quantile(exp(pref4.2[,2]), probs=c(0.025, 0.975))
+## --- 100/900 scenario --- 
 
-pref2.2.95.hist.data<-cbind(pref2.2.hist$mids, pref2.2.hist$density)
-pref2.2.95.hist<-subset(pref2.2.95.hist.data, pref2.2.95.hist.data[,1] > pref2.2.95[1] & pref2.2.95.hist.data[,1] < pref2.2.95[2])
-pref2.4.95.hist.data<-cbind(pref2.4.hist$mids, pref2.4.hist$density)
-pref2.4.95.hist<-subset(pref2.4.95.hist.data, pref2.4.95.hist.data[,1] > pref2.4.95[1] & pref2.4.95.hist.data[,1] < pref2.4.95[2])
-pref4.2.95.hist.data<-cbind(pref4.2.hist$mids, pref4.2.hist$density)
-pref4.2.95.hist<-subset(pref4.2.95.hist.data, pref4.2.95.hist.data[,1] > pref4.2.95[1] & pref4.2.95.hist.data[,1] < pref2.2.95[2])
+## plots to show convergence/overlap of posteriors for different chains 
 
+png('~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/PosteriorOverlap.png', height=30, width=30, units='cm', res=300)
+par(mfrow=c(3,3), mar=c(5,4,2,2))
 
+#PREFERENCE
+pref1.9.hist1<-hist(exp(pref1.9[,2]), breaks=30, plot=FALSE)
+plot(pref1.9.hist1$mids, pref1.9.hist1$counts, type='l', xlim=c(0,1), ylim=c(0, 9500), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(pref1.9.hist1$mids),pref1.9.hist1$mids, max(pref1.9.hist1$mids)), y=c(0,pref1.9.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
+axis(side=1, cex.axis=1.5)
+mtext(text='Scenario 1', side=2, line=0.5)
+abline(v=0.5, col='red', lty=2, lwd=2)
 
-## rhoTD posterior
+pref1.9.hist2<-hist(exp(pref1.9[,3]), breaks=30, plot=FALSE)
+lines(pref1.9.hist2$mids, pref1.9.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref1.9.hist2$mids),pref1.9.hist2$mids, max(pref1.9.hist2$mids)), y=c(0,pref1.9.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
 
-rhoTD2.2<-read.csv('~/Desktop/MV_200_200_fixed/rhoTD_burned_multi_chains.csv')
-rhoTD2.4<-read.csv('~/Desktop/MV_200_400_fixed/rhoTD_burned_multi_chains.csv')
-rhoTD4.2<-read.csv('~/Desktop/MV_400_200_fixed/rhoTD_burned_multi_chains.csv')
-rhoTD2.2.hist<-hist(exp(rhoTD2.2[,2]), breaks=25, plot=FALSE)
-rhoTD2.4.hist<-hist(exp(rhoTD2.4[,2]), breaks=25, plot=FALSE)
-rhoTD4.2.hist<-hist(exp(rhoTD4.2[,2]), breaks=25, plot=FALSE)
+pref1.9.hist3<-hist(exp(pref1.9[,4]), breaks=30, plot=FALSE)
+lines(pref1.9.hist3$mids, pref1.9.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref1.9.hist3$mids),pref1.9.hist3$mids, max(pref1.9.hist3$mids)), y=c(0,pref1.9.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
 
-rhoTD2.2.95<-quantile(exp(rhoTD2.2[,2]), probs=c(0.025, 0.975))
-rhoTD2.4.95<-quantile(exp(rhoTD2.4[,2]), probs=c(0.025, 0.975))
-rhoTD4.2.95<-quantile(exp(rhoTD4.2[,2]), probs=c(0.025, 0.975))
+pref1.9.hist4<-hist(exp(pref1.9[,5]), breaks=30, plot=FALSE)
+lines(pref1.9.hist4$mids, pref1.9.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref1.9.hist4$mids),pref1.9.hist4$mids, max(pref1.9.hist4$mids)), y=c(0,pref1.9.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
 
-rhoTD2.2.95.hist.data<-cbind(rhoTD2.2.hist$mids, rhoTD2.2.hist$density)
-rhoTD2.2.95.hist<-subset(rhoTD2.2.95.hist.data, rhoTD2.2.95.hist.data[,1] > rhoTD2.2.95[1] & rhoTD2.2.95.hist.data[,1] < rhoTD2.2.95[2])
-rhoTD2.4.95.hist.data<-cbind(rhoTD2.4.hist$mids, rhoTD2.4.hist$density)
-rhoTD2.4.95.hist<-subset(rhoTD2.4.95.hist.data, rhoTD2.4.95.hist.data[,1] > rhoTD2.4.95[1] & rhoTD2.4.95.hist.data[,1] < rhoTD2.4.95[2])
-rhoTD4.2.95.hist.data<-cbind(rhoTD4.2.hist$mids, rhoTD4.2.hist$density)
-rhoTD4.2.95.hist<-subset(rhoTD4.2.95.hist.data, rhoTD4.2.95.hist.data[,1] > rhoTD4.2.95[1] & rhoTD4.2.95.hist.data[,1] < rhoTD2.2.95[2])
+#RHODT (tick to deer)
+rhoDT1.9.hist1<-hist(exp(rhoDT1.9[,2]), breaks=30, plot=FALSE)
+plot(rhoDT1.9.hist1$mids, rhoDT1.9.hist1$counts, type='l', xlim=c(0,0.5), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoDT1.9.hist1$mids),rhoDT1.9.hist1$mids, max(rhoDT1.9.hist1$mids)), y=c(0,rhoDT1.9.hist1$counts,0), col=alpha('darkorange2', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.26, col='black', lty=2, lwd=2)
 
+rhoDT1.9.hist2<-hist(exp(rhoDT1.9[,3]), breaks=30, plot=FALSE)
+lines(rhoDT1.9.hist2$mids, rhoDT1.9.hist2$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT1.9.hist2$mids),rhoDT1.9.hist2$mids, max(rhoDT1.9.hist2$mids)), y=c(0,rhoDT1.9.hist2$counts,0), col=alpha('darkorange2', 0.25))
 
-## rhoDT posterior
+rhoDT1.9.hist3<-hist(exp(rhoDT1.9[,4]), breaks=30, plot=FALSE)
+lines(rhoDT1.9.hist3$mids, rhoDT1.9.hist3$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT1.9.hist3$mids),rhoDT1.9.hist3$mids, max(rhoDT1.9.hist3$mids)), y=c(0,rhoDT1.9.hist3$counts,0), col=alpha('darkorange2', 0.25))
 
-rhoDT2.2<-read.csv('~/Desktop/MV_200_200_fixed/rhoDT_burned_multi_chains.csv')
-rhoDT2.4<-read.csv('~/Desktop/MV_200_400_fixed/rhoDT_burned_multi_chains.csv')
-rhoDT4.2<-read.csv('~/Desktop/MV_400_200_fixed/rhoDT_burned_multi_chains.csv')
-rhoDT2.2.hist<-hist(exp(rhoDT2.2[,2]), breaks=30, plot=FALSE)
-rhoDT2.4.hist<-hist(exp(rhoDT2.4[,2]), breaks=30, plot=FALSE)
-rhoDT4.2.hist<-hist(exp(rhoDT4.2[,2]), breaks=30, plot=FALSE)
+rhoDT1.9.hist4<-hist(exp(rhoDT1.9[,5]), breaks=30, plot=FALSE)
+lines(rhoDT1.9.hist4$mids, rhoDT1.9.hist4$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT1.9.hist4$mids),rhoDT1.9.hist4$mids, max(rhoDT1.9.hist4$mids)), y=c(0,rhoDT1.9.hist4$counts,0), col=alpha('darkorange2', 0.25))
 
-rhoDT2.2.95<-quantile(exp(rhoDT2.2[,2]), probs=c(0.025, 0.975))
-rhoDT2.4.95<-quantile(exp(rhoDT2.4[,2]), probs=c(0.025, 0.975))
-rhoDT4.2.95<-quantile(exp(rhoDT4.2[,2]), probs=c(0.025, 0.975))
+#RHOTD (deer to tick)
+rhoTD1.9.hist1<-hist(exp(rhoTD1.9[,2]), breaks=30, plot=FALSE)
+plot(rhoTD1.9.hist1$mids, rhoTD1.9.hist1$counts, type='l', xlim=c(0,1), ylim=c(0,10000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoTD1.9.hist1$mids),rhoTD1.9.hist1$mids, max(rhoTD1.9.hist1$mids)), y=c(0,rhoTD1.9.hist1$counts,0), col=alpha('orchid4', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.06, col='black', lty=2, lwd=2)
 
-rhoDT2.2.95.hist.data<-cbind(rhoDT2.2.hist$mids, rhoDT2.2.hist$density)
-rhoDT2.2.95.hist<-subset(rhoDT2.2.95.hist.data, rhoDT2.2.95.hist.data[,1] > rhoDT2.2.95[1] & rhoDT2.2.95.hist.data[,1] < rhoDT2.2.95[2])
-rhoDT2.4.95.hist.data<-cbind(rhoDT2.4.hist$mids, rhoDT2.4.hist$density)
-rhoDT2.4.95.hist<-subset(rhoDT2.4.95.hist.data, rhoDT2.4.95.hist.data[,1] > rhoDT2.4.95[1] & rhoDT2.4.95.hist.data[,1] < rhoDT2.4.95[2])
-rhoDT4.2.95.hist.data<-cbind(rhoDT4.2.hist$mids, rhoDT4.2.hist$density)
-rhoDT4.2.95.hist<-subset(rhoDT4.2.95.hist.data, rhoDT4.2.95.hist.data[,1] > rhoDT4.2.95[1] & rhoDT4.2.95.hist.data[,1] < rhoDT2.2.95[2])
+rhoTD1.9.hist2<-hist(exp(rhoTD1.9[,3]), breaks=30, plot=FALSE)
+lines(rhoTD1.9.hist2$mids, rhoTD1.9.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD1.9.hist2$mids),rhoTD1.9.hist2$mids, max(rhoTD1.9.hist2$mids)), y=c(0,rhoTD1.9.hist2$counts,0), col=alpha('orchid4', 0.25))
 
+rhoTD1.9.hist3<-hist(exp(rhoTD1.9[,4]), breaks=30, plot=FALSE)
+lines(rhoTD1.9.hist3$mids, rhoTD1.9.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD1.9.hist3$mids),rhoTD1.9.hist3$mids, max(rhoTD1.9.hist3$mids)), y=c(0,rhoTD1.9.hist3$counts,0), col=alpha('orchid4', 0.25))
 
-## Marginal Posterior Plots - Overlapping curves ##
+rhoTD1.9.hist4<-hist(exp(rhoTD1.9[,5]), breaks=30, plot=FALSE)
+lines(rhoTD1.9.hist4$mids, rhoTD1.9.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD1.9.hist4$mids),rhoTD1.9.hist4$mids, max(rhoTD1.9.hist4$mids)), y=c(0,rhoTD1.9.hist4$counts,0), col=alpha('orchid4', 0.25))
 
-png(file='~/Desktop/Multivariate_Metropolis_MarginalPosteriors_RoughDraft.png', height=10, width=30, units='cm', res=300)
-par(mfrow=c(1,3))
-plot(pref2.2.hist$mids, pref2.2.hist$counts, type='l', 
-     ylim=c(0,max(c(pref2.2.hist$counts, pref2.4.hist$counts, pref4.2.hist$counts))),
-     xlab='Posterior Preference', ylab='', las=1)
-lines(pref2.4.hist$mids, pref2.4.hist$counts, type='l')
-lines(pref4.2.hist$mids, pref4.2.hist$counts, type='l')
-polygon(pref2.2.hist$mids, pref2.2.hist$counts, col=alpha('blue', 0.25))
-polygon(pref2.4.hist$mids, pref2.4.hist$counts, col=alpha('yellow', 0.25))
-polygon(x=c(0,pref4.2.hist$mids), y=c(0,pref4.2.hist$counts), col=alpha('red', 0.25))
-legend(x='topright', legend=c('1:2', '1:1', '2:1'), 
-       fill=c(alpha('yellow', 0.25), alpha('blue', 0.25), alpha('red', 0.25)),
-       bty='n')
+## --- 300/700 scenario --- 
 
-plot(rhoTD2.2.hist$mids, rhoTD2.2.hist$counts, type='l', 
-     ylim=c(0,max(c(rhoTD2.2.hist$counts, rhoTD2.4.hist$counts, rhoTD4.2.hist$counts))),
-     xlab='Posterior rhoTD', ylab='', las=1)
-lines(rhoTD2.4.hist$mids, rhoTD2.4.hist$counts, type='l')
-lines(rhoTD4.2.hist$mids, rhoTD4.2.hist$counts, type='l')
-polygon(x=c(0,rhoTD2.2.hist$mids, max(rhoTD2.2.hist$mids)), y=c(0,rhoTD2.2.hist$counts,0), col=alpha('blue', 0.25))
-polygon(x=c(0,rhoTD2.4.hist$mids, max(rhoTD2.4.hist$mids)), y=c(0,rhoTD2.4.hist$counts,0), col=alpha('yellow', 0.25))
-polygon(x=c(0,rhoTD4.2.hist$mids, max(rhoTD4.2.hist$mids)), y=c(0,rhoTD4.2.hist$counts,0), col=alpha('red', 0.25))
-legend(x='topright', legend=c('1:2', '1:1', '2:1'), 
-       fill=c(alpha('yellow', 0.25), alpha('blue', 0.25), alpha('red', 0.25)),
-       bty='n')
+## plots to show convergence/overlap of posteriors for different chains (for my own edification/possibly for supplement)
 
-plot(rhoDT2.2.hist$mids, rhoDT2.2.hist$counts, type='l', 
-     ylim=c(0,max(c(rhoDT2.2.hist$counts, rhoDT2.4.hist$counts, rhoDT4.2.hist$counts))),
-     xlab='Posterior rhoDT', ylab='', las=1)
-lines(rhoDT2.4.hist$mids, rhoDT2.4.hist$counts, type='l')
-lines(rhoDT4.2.hist$mids, rhoDT4.2.hist$counts, type='l')
-polygon(x=c(0,rhoDT2.2.hist$mids, max(rhoDT2.2.hist$mids)), y=c(0,rhoDT2.2.hist$counts,0), col=alpha('blue', 0.25))
-polygon(x=c(0,rhoDT2.4.hist$mids, max(rhoDT2.4.hist$mids)), y=c(0,rhoDT2.4.hist$counts,0), col=alpha('yellow', 0.25))
-polygon(x=c(0,rhoDT4.2.hist$mids, max(rhoDT4.2.hist$mids)), y=c(0,rhoDT4.2.hist$counts,0), col=alpha('red', 0.25))
-legend(x='topright', legend=c('1:2', '1:1', '2:1'), 
-       fill=c(alpha('yellow', 0.25), alpha('blue', 0.25), alpha('red', 0.25)),
-       bty='n')
+#PREF
+pref3.7.hist1<-hist(exp(pref3.7[,2]), breaks=30, plot=FALSE)
+plot(pref3.7.hist1$mids, pref3.7.hist1$counts, type='l', xlim=c(0,1), ylim=c(0,28000), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(pref3.7.hist1$mids),pref3.7.hist1$mids, max(pref3.7.hist1$mids)), y=c(0,pref3.7.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
+axis(side=1, cex.axis=1.5)
+mtext(text='Scenario 2', side=2, line=0.5)
+abline(v=0.5, col='red', lty=2, lwd=2)
+
+pref3.7.hist2<-hist(exp(pref3.7[,3]), breaks=30, plot=FALSE)
+lines(pref3.7.hist2$mids, pref3.7.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref3.7.hist2$mids),pref3.7.hist2$mids, max(pref3.7.hist2$mids)), y=c(0,pref3.7.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref3.7.hist3<-hist(exp(pref3.7[,4]), breaks=30, plot=FALSE)
+lines(pref3.7.hist3$mids, pref3.7.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref3.7.hist3$mids),pref3.7.hist3$mids, max(pref3.7.hist3$mids)), y=c(0,pref3.7.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref3.7.hist4<-hist(exp(pref3.7[,5]), breaks=30, plot=FALSE)
+lines(pref3.7.hist4$mids, pref3.7.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref3.7.hist4$mids),pref3.7.hist4$mids, max(pref3.7.hist4$mids)), y=c(0,pref3.7.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref3.7.hist5<-hist(exp(pref3.7[,6]), breaks=30, plot=FALSE)
+lines(pref3.7.hist5$mids, pref3.7.hist5$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref3.7.hist5$mids),pref3.7.hist5$mids, max(pref3.7.hist5$mids)), y=c(0,pref3.7.hist5$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+#RHODT (tick to deer)
+rhoDT3.7.hist1<-hist(exp(rhoDT3.7[,2]), breaks=30, plot=FALSE)
+plot(rhoDT3.7.hist1$mids, rhoDT3.7.hist1$counts, type='l', xlim=c(0,0.5), ylim=c(0,28000), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoDT3.7.hist1$mids),rhoDT3.7.hist1$mids, max(rhoDT3.7.hist1$mids)), y=c(0,rhoDT3.7.hist1$counts,0), col=alpha('darkorange2', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.26, col='black', lty=2, lwd=2)
+
+rhoDT3.7.hist2<-hist(exp(rhoDT3.7[,3]), breaks=30, plot=FALSE)
+lines(rhoDT3.7.hist2$mids, rhoDT3.7.hist2$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT3.7.hist2$mids),rhoDT3.7.hist2$mids, max(rhoDT3.7.hist2$mids)), y=c(0,rhoDT3.7.hist2$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT3.7.hist3<-hist(exp(rhoDT3.7[,4]), breaks=30, plot=FALSE)
+lines(rhoDT3.7.hist3$mids, rhoDT3.7.hist3$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT3.7.hist3$mids),rhoDT3.7.hist3$mids, max(rhoDT3.7.hist3$mids)), y=c(0,rhoDT3.7.hist3$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT3.7.hist4<-hist(exp(rhoDT3.7[,5]), breaks=30, plot=FALSE)
+lines(rhoDT3.7.hist4$mids, rhoDT3.7.hist4$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT3.7.hist4$mids),rhoDT3.7.hist4$mids, max(rhoDT3.7.hist4$mids)), y=c(0,rhoDT3.7.hist4$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT3.7.hist5<-hist(exp(rhoDT3.7[,6]), breaks=30, plot=FALSE)
+lines(rhoDT3.7.hist5$mids, rhoDT3.7.hist5$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT3.7.hist5$mids),rhoDT3.7.hist5$mids, max(rhoDT3.7.hist5$mids)), y=c(0,rhoDT3.7.hist5$counts,0), col=alpha('darkorange2', 0.25))
+
+#RHOTD (deer to tick)
+rhoTD3.7.hist1<-hist(exp(rhoTD3.7[,2]), breaks=30, plot=FALSE)
+plot(rhoTD3.7.hist1$mids, rhoTD3.7.hist1$counts, type='l', xlim=c(0,1), c(0,15000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoTD3.7.hist1$mids),rhoTD3.7.hist1$mids, max(rhoTD3.7.hist1$mids)), y=c(0,rhoTD3.7.hist1$counts,0), col=alpha('orchid4', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.06, col='black', lty=2, lwd=2)
+
+rhoTD3.7.hist2<-hist(exp(rhoTD3.7[,3]), breaks=30, plot=FALSE)
+lines(rhoTD3.7.hist2$mids, rhoTD3.7.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD3.7.hist2$mids),rhoTD3.7.hist2$mids, max(rhoTD3.7.hist2$mids)), y=c(0,rhoTD3.7.hist2$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD3.7.hist3<-hist(exp(rhoTD3.7[,4]), breaks=30, plot=FALSE)
+lines(rhoTD3.7.hist3$mids, rhoTD3.7.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD3.7.hist3$mids),rhoTD3.7.hist3$mids, max(rhoTD3.7.hist3$mids)), y=c(0,rhoTD3.7.hist3$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD3.7.hist4<-hist(exp(rhoTD3.7[,5]), breaks=30, plot=FALSE)
+lines(rhoTD3.7.hist4$mids, rhoTD3.7.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD3.7.hist4$mids),rhoTD3.7.hist4$mids, max(rhoTD3.7.hist4$mids)), y=c(0,rhoTD3.7.hist4$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD3.7.hist5<-hist(exp(rhoTD3.7[,6]), breaks=30, plot=FALSE)
+lines(rhoTD3.7.hist5$mids, rhoTD3.7.hist5$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD3.7.hist5$mids),rhoTD3.7.hist5$mids, max(rhoTD3.7.hist5$mids)), y=c(0,rhoTD3.7.hist5$counts,0), col=alpha('orchid4', 0.25))
+
+## --- 500/500 scenario --- 
+
+## plots to show convergence/overlap of posteriors for different chains (for my own edification/possibly for supplement)
+pref5.5.hist1<-hist(exp(pref5.5[,2]), breaks=30, plot=FALSE)
+plot(pref5.5.hist1$mids, pref5.5.hist1$counts, type='l', xlim=c(0,1), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(pref5.5.hist1$mids),pref5.5.hist1$mids, max(pref5.5.hist1$mids)), y=c(0,pref5.5.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
+axis(side=1, cex.axis=1.5)
+mtext(text='Scenario 3', side=2, line=0.5)
+abline(v=0.5, col='red', lty=2, lwd=2)
+
+pref5.5.hist2<-hist(exp(pref5.5[,3]), breaks=30, plot=FALSE)
+lines(pref5.5.hist2$mids, pref5.5.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref5.5.hist2$mids),pref5.5.hist2$mids, max(pref5.5.hist2$mids)), y=c(0,pref5.5.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref5.5.hist3<-hist(exp(pref5.5[,4]), breaks=30, plot=FALSE)
+lines(pref5.5.hist3$mids, pref5.5.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref5.5.hist3$mids),pref5.5.hist3$mids, max(pref5.5.hist3$mids)), y=c(0,pref5.5.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref5.5.hist4<-hist(exp(pref5.5[,5]), breaks=30, plot=FALSE)
+lines(pref5.5.hist4$mids, pref5.5.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref5.5.hist4$mids),pref5.5.hist4$mids, max(pref5.5.hist4$mids)), y=c(0,pref5.5.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+pref5.5.hist5<-hist(exp(pref5.5[,6]), breaks=30, plot=FALSE)
+lines(pref5.5.hist5$mids, pref5.5.hist5$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(pref5.5.hist5$mids),pref5.5.hist5$mids, max(pref5.5.hist5$mids)), y=c(0,pref5.5.hist5$counts,0), col=alpha('darkolivegreen4', 0.25))
+
+#RHODT (tick to deer)
+rhoDT5.5.hist1<-hist(exp(rhoDT5.5[,2]), breaks=30, plot=FALSE)
+plot(rhoDT5.5.hist1$mids, rhoDT5.5.hist1$counts, type='l', xlim=c(0,0.5), ylim=c(0,30000), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoDT5.5.hist1$mids),rhoDT5.5.hist1$mids, max(rhoDT5.5.hist1$mids)), y=c(0,rhoDT5.5.hist1$counts,0), col=alpha('darkorange2', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.26, col='black', lty=2, lwd=2)
+
+rhoDT5.5.hist2<-hist(exp(rhoDT5.5[,3]), breaks=30, plot=FALSE)
+lines(rhoDT5.5.hist2$mids, rhoDT5.5.hist2$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT5.5.hist2$mids),rhoDT5.5.hist2$mids, max(rhoDT5.5.hist2$mids)), y=c(0,rhoDT5.5.hist2$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT5.5.hist3<-hist(exp(rhoDT5.5[,4]), breaks=30, plot=FALSE)
+lines(rhoDT5.5.hist3$mids, rhoDT5.5.hist3$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT5.5.hist3$mids),rhoDT5.5.hist3$mids, max(rhoDT5.5.hist3$mids)), y=c(0,rhoDT5.5.hist3$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT5.5.hist4<-hist(exp(rhoDT5.5[,5]), breaks=30, plot=FALSE)
+lines(rhoDT5.5.hist4$mids, rhoDT5.5.hist4$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT5.5.hist4$mids),rhoDT5.5.hist4$mids, max(rhoDT5.5.hist4$mids)), y=c(0,rhoDT5.5.hist4$counts,0), col=alpha('darkorange2', 0.25))
+
+rhoDT5.5.hist5<-hist(exp(rhoDT5.5[,6]), breaks=30, plot=FALSE)
+lines(rhoDT5.5.hist5$mids, rhoDT5.5.hist5$counts, type='l', xlim=c(0,0.5))
+polygon(x=c(min(rhoDT5.5.hist5$mids),rhoDT5.5.hist5$mids, max(rhoDT5.5.hist5$mids)), y=c(0,rhoDT5.5.hist5$counts,0), col=alpha('darkorange2', 0.25))
+
+#RHOTD (deer to tick)
+rhoTD5.5.hist1<-hist(exp(rhoTD5.5[,2]), breaks=30, plot=FALSE)
+plot(rhoTD5.5.hist1$mids, rhoTD5.5.hist1$counts, type='l', xlim=c(0,1), c(0,20000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
+polygon(x=c(min(rhoTD5.5.hist1$mids),rhoTD5.5.hist1$mids, max(rhoTD5.5.hist1$mids)), y=c(0,rhoTD5.5.hist1$counts,0), col=alpha('orchid4', 0.25))
+axis(side=1, cex.axis=1.5)
+abline(v=0.06, col='black', lty=2, lwd=2)
+
+rhoTD5.5.hist2<-hist(exp(rhoTD5.5[,3]), breaks=30, plot=FALSE)
+lines(rhoTD5.5.hist2$mids, rhoTD5.5.hist2$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD5.5.hist2$mids),rhoTD5.5.hist2$mids, max(rhoTD5.5.hist2$mids)), y=c(0,rhoTD5.5.hist2$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD5.5.hist3<-hist(exp(rhoTD5.5[,4]), breaks=30, plot=FALSE)
+lines(rhoTD5.5.hist3$mids, rhoTD5.5.hist3$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD5.5.hist3$mids),rhoTD5.5.hist3$mids, max(rhoTD5.5.hist3$mids)), y=c(0,rhoTD5.5.hist3$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD5.5.hist4<-hist(exp(rhoTD5.5[,5]), breaks=30, plot=FALSE)
+lines(rhoTD5.5.hist4$mids, rhoTD5.5.hist4$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD5.5.hist4$mids),rhoTD5.5.hist4$mids, max(rhoTD5.5.hist4$mids)), y=c(0,rhoTD5.5.hist4$counts,0), col=alpha('orchid4', 0.25))
+
+rhoTD5.5.hist5<-hist(exp(rhoTD5.5[,6]), breaks=30, plot=FALSE)
+lines(rhoTD5.5.hist5$mids, rhoTD5.5.hist5$counts, type='l', xlim=c(0,1))
+polygon(x=c(min(rhoTD5.5.hist5$mids),rhoTD5.5.hist5$mids, max(rhoTD5.5.hist5$mids)), y=c(0,rhoTD5.5.hist5$counts,0), col=alpha('orchid4', 0.25))
 
 dev.off()
 
-## Marginal posterior plots -- 3x3 matrix w/95%CI shading
+## example code for how you would find the 95% CI and shade in that section of the distribution
 
-png(file='~/Desktop/MV_DensityDT_Fixed_MarginalPosteriors_3x3Matrix.png', height=30, width=30, units='cm', res=300)
-par(mfcol=c(3,3), mar=c(5,4,2,2))
-
-# preference plots
+pref2.2.95<-quantile(exp(pref2.2[,2]), probs=c(0.025, 0.975))
+pref2.2.95.hist.data<-cbind(pref2.2.hist$mids, pref2.2.hist$density)
+pref2.2.95.hist<-subset(pref2.2.95.hist.data, pref2.2.95.hist.data[,1] > pref2.2.95[1] & pref2.2.95.hist.data[,1] < pref2.2.95[2])
 plot(pref2.4.hist$mids, pref2.4.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
      xlab='', ylab='', las=1, cex.lab=2)
 mtext(text='1:2', cex=1.5, side=2, line=1)
@@ -378,248 +496,230 @@ polygon(c(min(pref2.4.95.hist[,1]), pref2.4.95.hist[,1], max(pref2.4.95.hist[,1]
         c(0,pref2.4.95.hist[,2],0), col=alpha('darkolivegreen4', 0.5))
 abline(v=0.5, lty=2, lwd=3, col='red')
 
-plot(pref2.2.hist$mids, pref2.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2)
-mtext(text='1:1', cex=1.5, side=2, line=1)
-axis(side=1, cex.axis=2)
-polygon(c(min(pref2.2.hist$mids), pref2.2.hist$mids, max(pref2.2.hist$mids)), 
-        c(0,pref2.2.hist$density,0), col=alpha('darkolivegreen4', 0.5))
-polygon(c(min(pref2.2.95.hist[,1]), pref2.2.95.hist[,1], max(pref2.2.95.hist[,1])), 
-        c(0,pref2.2.95.hist[,2],0), col=alpha('darkolivegreen4', 0.5))
-abline(v=0.5, lty=2, lwd=3, col='red')
 
-plot(pref4.2.hist$mids, pref4.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2)
-mtext(text='2:1', cex=1.5, side=2, line=1)
-axis(side=1, cex.axis=2)
-polygon(c(min(pref4.2.hist$mids), pref4.2.hist$mids, max(pref4.2.hist$mids)), 
-        c(0,pref4.2.hist$density,0), col=alpha('darkolivegreen4', 0.5))
-polygon(c(min(pref4.2.95.hist[,1]), pref4.2.95.hist[,1], max(pref4.2.95.hist[,1])), 
-        c(0,pref4.2.95.hist[,2],0), col=alpha('darkolivegreen4', 0.5))
-abline(v=0.5, lty=2, lwd=3, col='red')
-mtext(text=expression(phi['D']), cex=1.5, line=4, side=1)
-
-# rhoDT plots
-
-plot(rhoDT2.4.hist$mids, rhoDT2.4.hist$density, type='l', axes=FALSE, main='', xlim=c(0,0.4),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoDT2.4.hist$mids), rhoDT2.4.hist$mids, max(rhoDT2.4.hist$mids)), 
-        c(0,rhoDT2.4.hist$density,0), col=alpha('darkorange2', 0.5))
-polygon(c(min(rhoDT2.4.95.hist[,1]), rhoDT2.4.95.hist[,1], max(rhoDT2.4.95.hist[,1])), 
-        c(0,rhoDT2.4.95.hist[,2],0), col=alpha('darkorange2', 0.5))
-abline(v=0.26, lty=2, lwd=3, col='black')
-
-plot(rhoDT2.2.hist$mids, rhoDT2.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,0.4),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoDT2.2.hist$mids), rhoDT2.2.hist$mids, max(rhoDT2.2.hist$mids)), 
-        c(0,rhoDT2.2.hist$density,0), col=alpha('darkorange2', 0.5))
-polygon(c(min(rhoDT2.2.95.hist[,1]), rhoDT2.2.95.hist[,1], max(rhoDT2.2.95.hist[,1])), 
-        c(0,rhoDT2.2.95.hist[,2],0), col=alpha('darkorange2', 0.5))
-abline(v=0.26, lty=2, lwd=3, col='black')
-
-plot(rhoDT4.2.hist$mids, rhoDT4.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,0.4),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoDT4.2.hist$mids), rhoDT4.2.hist$mids, max(rhoDT4.2.hist$mids)), 
-        c(0,rhoDT4.2.hist$density,0), col=alpha('darkorange2', 0.5))
-polygon(c(min(rhoDT4.2.95.hist[,1]), rhoDT4.2.95.hist[,1], max(rhoDT4.2.95.hist[,1])), 
-        c(0,rhoDT4.2.95.hist[,2],0), col=alpha('darkorange2', 0.5))
-abline(v=0.26, lty=2, lwd=3, col='black')
-mtext(text=expression(rho['DT']), cex=1.5, line=4, side=1)
-
-# rhoTD plots
-
-plot(rhoTD2.4.hist$mids, rhoTD2.4.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoTD2.4.hist$mids), rhoTD2.4.hist$mids, max(rhoTD2.4.hist$mids)), 
-        c(0,rhoTD2.4.hist$density,0), col=alpha('orchid4', 0.5))
-polygon(c(min(rhoTD2.4.95.hist[,1]), rhoTD2.4.95.hist[,1], max(rhoTD2.4.95.hist[,1])), 
-        c(0,rhoTD2.4.95.hist[,2],0), col=alpha('orchid4', 0.5))
-abline(v=0.02, lty=2, lwd=3, col='black')
-
-plot(rhoTD2.2.hist$mids, rhoTD2.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoTD2.2.hist$mids), rhoTD2.2.hist$mids, max(rhoTD2.2.hist$mids)), 
-        c(0,rhoTD2.2.hist$density,0), col=alpha('orchid4', 0.5))
-polygon(c(min(rhoTD2.2.95.hist[,1]), rhoTD2.2.95.hist[,1], max(rhoTD2.2.95.hist[,1])), 
-        c(0,rhoTD2.2.95.hist[,2],0), col=alpha('orchid4', 0.5))
-abline(v=0.06, lty=2, lwd=3, col='black')
-
-plot(rhoTD4.2.hist$mids, rhoTD4.2.hist$density, type='l', axes=FALSE, main='', xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2)
-axis(side=1, cex.axis=2)
-polygon(c(min(rhoTD4.2.hist$mids), rhoTD4.2.hist$mids, max(rhoTD4.2.hist$mids)), 
-        c(0,rhoTD4.2.hist$density,0), col=alpha('orchid4', 0.5))
-polygon(c(min(rhoTD4.2.95.hist[,1]), rhoTD4.2.95.hist[,1], max(rhoTD4.2.95.hist[,1])), 
-        c(0,rhoTD4.2.95.hist[,2],0), col=alpha('orchid4', 0.5))
-abline(v=0.06, lty=2, lwd=3, col='black')
-mtext(text=expression(rho['TD']), cex=1.5, line=4, side=1)
-
-dev.off()
-
-## split chains and look at mean 1st half vs. mean 2nd half
-pref2.2.means1<-colMeans(pref2.2[1:50000,2:6])
-pref2.2.means2<-colMeans(pref2.2[50001:100000,2:6])
-pref2.2.means1-pref2.2.means2
-pref2.4.means1<-colMeans(pref2.4[1:50000,2:6])
-pref2.4.means2<-colMeans(pref2.4[50001:100000,2:6])
-pref2.4.means1-pref2.4.means2
-pref4.2.means1<-colMeans(pref4.2[1:50000,2:6])
-pref4.2.means2<-colMeans(pref4.2[50001:100000,2:6])
-pref4.2.means1-pref4.2.means2
-
-rhoTD2.2.means1<-colMeans(rhoTD2.2[1:50000,2:6])
-rhoTD2.2.means2<-colMeans(rhoTD2.2[50001:100000,2:6])
-rhoTD2.2.means1-rhoTD2.2.means2
-rhoTD2.4.means1<-colMeans(rhoTD2.4[1:50000,2:6])
-rhoTD2.4.means2<-colMeans(rhoTD2.4[50001:100000,2:6])
-rhoTD2.4.means1-rhoTD2.4.means2
-rhoTD4.2.means1<-colMeans(rhoTD4.2[1:50000,2:6])
-rhoTD4.2.means2<-colMeans(rhoTD4.2[50001:100000,2:6])
-rhoTD4.2.means1-rhoTD4.2.means2
-
-rhoDT2.2.means1<-colMeans(rhoDT2.2[1:50000,2:6])
-rhoDT2.2.means2<-colMeans(rhoDT2.2[50001:100000,2:6])
-rhoDT2.2.means1-rhoDT2.2.means2
-rhoDT2.4.means1<-colMeans(rhoDT2.4[1:50000,2:6])
-rhoDT2.4.means2<-colMeans(rhoDT2.4[50001:100000,2:6])
-rhoDT2.4.means1-rhoDT2.4.means2
-rhoDT4.2.means1<-colMeans(rhoDT4.2[1:50000,2:6])
-rhoDT4.2.means2<-colMeans(rhoDT4.2[50001:100000,2:6])
-rhoDT4.2.means1-rhoDT4.2.means2
 
 ## -----------------------------------------------------------------------------------
 ## 4. Look at parameter correlations in the different relative abundance scenarios by
 ##    making a series of pairs plots (1 master plot with 9 panels) EXPONENTIATED
 ## -----------------------------------------------------------------------------------
 
-#these are all "chain1", which is the same as prefX.X[,2], rhoTDX.X[,2], rhoDTX.X[,2]
-#the full chains have the posteriors
-chain2.2<-read.csv('~/Desktop/MV_200_200_fixed/Multivar_Metropolis_200D_200R_1/1 MCMC Accepted Iteration Log 2014-10-21 22-38 486.csv')
-chain2.4<-read.csv('~/Desktop/MV_200_400_fixed/Multivar_Metropolis_200D_400R_1/1 MCMC Accepted Iteration Log 2014-10-21 22-38 293.csv')
-chain4.2<-read.csv('~/Desktop/MV_400_200_fixed/Multivar_Metropolis_400D_200R_1/1 MCMC Accepted Iteration Log 2014-10-21 22-38 887.csv')
-chain2.2.burn<-chain2.2[20000:length(chain2.2[,1]),]
-chain2.4.burn<-chain2.4[20000:length(chain2.4[,1]),]
-chain4.2.burn<-chain4.2[20000:length(chain4.2[,1]),]
-post2.4colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(chain2.4.burn$posterior)))))
-post2.2colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(chain2.2.burn$posterior)))))
-post4.2colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(chain4.2.burn$posterior)))))
+# plot characteristics:
+# - chains thinned to 10% (every 10th row is plotted)
+# - all chains are plotted in a given scatterplot (not a representative chain as in the original dissertation)
+# - color interpolation is based on maximum of all of the chains, not just a single chain
+# - log likelihoods are identical to posteriors because uniform priors are used in the model fitting (likelihood = posterior probability)
 
-png(file='~/Desktop/DensityDT_Fixed_PairsPlotLegend.png', height=10, width=5, units='cm', res=300)
+ll1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/loglik_burned_multi_chains.csv')
+post1.9colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll1.9[,2:length(ll1.9)])))))
+
+ll3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/loglik_burned_multi_chains.csv')
+post3.7colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll3.7[,2:length(ll3.7)])))))
+
+ll5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/loglik_burned_multi_chains.csv')
+post5.5colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll5.5[,2:length(ll5.5)])))))
+
+png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_Legend.png', height=10, width=5, units='cm', res=300)
 plot.new()
-legend_image <- as.raster(matrix(post2.2colors, ncol=1))
+legend_image <- as.raster(matrix(post5.5colors, ncol=1))
 rasterImage(legend_image, 0, 0, 1,1)
 mtext(text = c('poor'), side=2, line=0, at=c(0), las=1, cex=1.5)
 mtext(text = c('good'), side=2, line=0, at=c(1), las=1, cex=1.5)
 mtext(text = c('Model Fit'), side=2, line=2, cex=1.5)
 dev.off()
 
-png(file='~/Desktop/DensityDT_Fixed_Multivariate_Metropolis_ExpPairs_Colored.png', height=30, width=30, units='cm', res=300)
+png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored.png', height=30, width=30, units='cm', res=300)
 par(mfrow=c(3,3), mar=c(5,7,2,2))
 
-# row 1 (1:2 rel. abundance)
-plot(exp(pref2.4[,2]), exp(rhoTD2.4[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['TD']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.4colors[abs(round(chain2.4.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-mtext(side=2, text='1:2', cex=1.5, line=5)
-#title('A', adj=0)
-plot(exp(pref2.4[,2]), exp(rhoDT2.4[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.4colors[abs(round(chain2.4.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('B', adj=0)
-plot(exp(rhoTD2.4[,2]), exp(rhoDT2.4[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(rho['TD']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.4colors[abs(round(chain2.4.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('C', adj=0)
-# row 2 (1:1 rel. abundance)
-plot(exp(pref2.2[,2]), exp(rhoTD2.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['TD']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.2colors[abs(round(chain2.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-mtext(side=2, text='1:1', cex=1.5, line=5)
-#title('D', adj=0)
-plot(exp(pref2.2[,2]), exp(rhoDT2.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.2colors[abs(round(chain2.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('E', adj=0)
-plot(exp(rhoTD2.2[,2]), exp(rhoDT2.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(rho['TD']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post2.2colors[abs(round(chain2.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('F', adj=0)
-# row 3 (2:1 rel. abundance)
-plot(exp(pref4.2[,2]), exp(rhoTD4.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['TD']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post4.2colors[abs(round(chain4.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-mtext(side=2, text='2:1', cex=1.5, line=5)
-#title('G', adj=0)
-plot(exp(pref4.2[,2]), exp(rhoDT4.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post4.2colors[abs(round(chain4.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('H', adj=0)
-plot(exp(rhoTD4.2[,2]), exp(rhoDT4.2[,2]), xlim=c(0,1), ylim=c(0,1), axes=FALSE,
-     xlab=expression(rho['TD']), ylab=expression(rho['DT']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post4.2colors[abs(round(chain4.2.burn$posterior))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5)
-#title('I', adj=0)
+# row 1 (100:900 rel. abundance)
+thin.by<-seq(1, 100001, 10)
+plot(pref1.9[thin.by,2], rhoDT1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
+points(pref1.9[thin.by,3], rhoDT1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
+points(pref1.9[thin.by,4], rhoDT1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
+points(pref1.9[thin.by,5], rhoDT1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+mtext(side=2, text='Scenario 1', cex=1.3, line=5)
+
+plot(pref1.9[thin.by,2], rhoTD1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
+points(pref1.9[thin.by,3], rhoTD1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
+points(pref1.9[thin.by,4], rhoTD1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
+points(pref1.9[thin.by,5], rhoTD1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
+
+plot(rhoDT1.9[thin.by,2], rhoTD1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
+points(rhoDT1.9[thin.by,3], rhoTD1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
+points(rhoDT1.9[thin.by,4], rhoTD1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
+points(rhoDT1.9[thin.by,5], rhoTD1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
+
+# row 2 (300:700 relative abundance)
+plot(pref3.7[thin.by,2], rhoDT3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
+points(pref3.7[thin.by,3], rhoDT3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
+points(pref3.7[thin.by,4], rhoDT3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
+points(pref3.7[thin.by,5], rhoDT3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
+points(pref3.7[thin.by,6], rhoDT3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+mtext(side=2, text='Scenario 2', cex=1.3, line=5)
+
+plot(pref3.7[thin.by,2], rhoTD3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
+points(pref3.7[thin.by,3], rhoTD3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
+points(pref3.7[thin.by,4], rhoTD3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
+points(pref3.7[thin.by,5], rhoTD3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
+points(pref3.7[thin.by,6], rhoTD3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
+plot(rhoDT3.7[thin.by,2], rhoTD3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
+points(rhoDT3.7[thin.by,3], rhoTD3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
+points(rhoDT3.7[thin.by,4], rhoTD3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
+points(rhoDT3.7[thin.by,5], rhoTD3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
+points(rhoDT3.7[thin.by,6], rhoTD3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
+# row 3 (500:500 relative abundance)
+plot(pref5.5[thin.by,2], rhoDT5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
+points(pref5.5[thin.by,3], rhoDT5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
+points(pref5.5[thin.by,4], rhoDT5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
+points(pref5.5[thin.by,5], rhoDT5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
+points(pref5.5[thin.by,6], rhoDT5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+mtext(side=2, text='Scenario 3', cex=1.3, line=5)
+
+plot(pref5.5[thin.by,2], rhoTD5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
+points(pref5.5[thin.by,3], rhoTD5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
+points(pref5.5[thin.by,4], rhoTD5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
+points(pref5.5[thin.by,5], rhoTD5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
+points(pref5.5[thin.by,6], rhoTD5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
+plot(rhoDT5.5[thin.by,2], rhoTD5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
+     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
+points(rhoDT5.5[thin.by,3], rhoTD5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
+points(rhoDT5.5[thin.by,4], rhoTD5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
+points(rhoDT5.5[thin.by,5], rhoTD5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
+points(rhoDT5.5[thin.by,6], rhoTD5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
+magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+
 dev.off()
+
 
 ## -----------------------------------------------------------------------------------
 ## 5. Meta-analysis empirical prevalence posteriors compared to model output prev
 ## -----------------------------------------------------------------------------------
 
 # read in the data generated in the ticks.R script
-empirical<-read.csv('~/Dropbox/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
+empirical<-read.csv('~/Dropbox/2014&Older/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
 ilogit = function(x) 1/{1+exp(-x)}
 
-ap2.2<-read.csv('~/Desktop/Multivar_Metropolis_200D_200R/aPrev_burned_multi_chains.csv')
-ap2.4<-read.csv('~/Desktop/Multivar_Metropolis_200D_400R/aPrev_burned_multi_chains.csv')
-ap4.2<-read.csv('~/Desktop/Multivar_Metropolis_400D_200R/aPrev_burned_multi_chains.csv')
-ap2.2.hist<-hist(ap2.2[,2], breaks=25, plot=FALSE)
-ap2.4.hist<-hist(ap2.4[,2], breaks=25, plot=FALSE)
-ap4.2.hist<-hist(ap4.2[,2], breaks=25, plot=FALSE)
-empirical.ap.hist<-hist(ilogit(empirical[,2]), breaks=25, plot=FALSE)
-ymax<-max(c(ap2.2.hist$density, ap2.4.hist$density, ap4.2.hist$density, empirical.ap.hist$density))
+# ticks
+ap1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/aPrev_burned_multi_chains.csv')
+ap1.9.hist1<-hist(ap1.9[,2], breaks=25, plot=FALSE)
+ap1.9.hist2<-hist(ap1.9[,3], breaks=25, plot=FALSE)
+ap1.9.hist3<-hist(ap1.9[,4], breaks=25, plot=FALSE)
+ap1.9.hist4<-hist(ap1.9[,5], breaks=25, plot=FALSE)
 
-dp2.2<-read.csv('~/Desktop/Multivar_Metropolis_200D_200R/dPrev_burned_multi_chains.csv')
-dp2.4<-read.csv('~/Desktop/Multivar_Metropolis_200D_400R/dPrev_burned_multi_chains.csv')
-dp4.2<-read.csv('~/Desktop/Multivar_Metropolis_400D_200R/dPrev_burned_multi_chains.csv')
-dp2.2.hist<-hist(dp2.2[,2], breaks=25, plot=FALSE)
-dp2.4.hist<-hist(dp2.4[,2], breaks=25, plot=FALSE)
-dp4.2.hist<-hist(dp4.2[,2], breaks=25, plot=FALSE)
+ap3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/aPrev_burned_multi_chains.csv')
+ap3.7.hist1<-hist(ap3.7[,2], breaks=25, plot=FALSE)
+ap3.7.hist2<-hist(ap3.7[,3], breaks=25, plot=FALSE)
+ap3.7.hist3<-hist(ap3.7[,4], breaks=25, plot=FALSE)
+ap3.7.hist4<-hist(ap3.7[,5], breaks=25, plot=FALSE)
+ap3.7.hist5<-hist(ap3.7[,6], breaks=25, plot=FALSE)
+
+ap5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/aPrev_burned_multi_chains.csv')
+ap5.5.hist1<-hist(ap5.5[,2], breaks=25, plot=FALSE)
+ap5.5.hist2<-hist(ap5.5[,3], breaks=25, plot=FALSE)
+ap5.5.hist3<-hist(ap5.5[,4], breaks=25, plot=FALSE)
+ap5.5.hist4<-hist(ap5.5[,5], breaks=25, plot=FALSE)
+ap5.5.hist5<-hist(ap5.5[,6], breaks=25, plot=FALSE)
+
+empirical.ap.hist<-hist(ilogit(empirical[,2]), breaks=25, plot=FALSE)
+
+# deer
+dp1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/dPrev_burned_multi_chains.csv')
+dp1.9.hist1<-hist(dp1.9[,2], breaks=25, plot=FALSE)
+dp1.9.hist2<-hist(dp1.9[,3], breaks=25, plot=FALSE)
+dp1.9.hist3<-hist(dp1.9[,4], breaks=25, plot=FALSE)
+dp1.9.hist4<-hist(dp1.9[,5], breaks=25, plot=FALSE)
+
+dp3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/dPrev_burned_multi_chains.csv')
+dp3.7.hist1<-hist(dp3.7[,2], breaks=25, plot=FALSE)
+dp3.7.hist2<-hist(dp3.7[,3], breaks=25, plot=FALSE)
+dp3.7.hist3<-hist(dp3.7[,4], breaks=25, plot=FALSE)
+dp3.7.hist4<-hist(dp3.7[,5], breaks=25, plot=FALSE)
+dp3.7.hist5<-hist(dp3.7[,6], breaks=25, plot=FALSE)
+
+dp5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/dPrev_burned_multi_chains.csv')
+dp5.5.hist1<-hist(dp5.5[,2], breaks=25, plot=FALSE)
+dp5.5.hist2<-hist(dp5.5[,3], breaks=25, plot=FALSE)
+dp5.5.hist3<-hist(dp5.5[,4], breaks=25, plot=FALSE)
+dp5.5.hist4<-hist(dp5.5[,5], breaks=25, plot=FALSE)
+dp5.5.hist5<-hist(dp5.5[,6], breaks=25, plot=FALSE)
+
 empirical.dp.hist<-hist(ilogit(empirical[,3]), breaks=25, plot=FALSE)
 ymax.d<-max(c(dp2.2.hist$density, dp2.4.hist$density, dp4.2.hist$density, empirical.dp.hist$density))
 
-dabp2.2<-read.csv('~/Desktop/Multivar_Metropolis_200D_200R/dABprev_burned_multi_chains.csv')
-dabp2.4<-read.csv('~/Desktop/Multivar_Metropolis_200D_400R/dABprev_burned_multi_chains.csv')
-dabp4.2<-read.csv('~/Desktop/Multivar_Metropolis_400D_200R/dABprev_burned_multi_chains.csv')
-dabp2.2.hist<-hist(dabp2.2[,2], breaks=25, plot=FALSE)
-dabp2.4.hist<-hist(dabp2.4[,2], breaks=25 plot=FALSE)
-dabp4.2.hist<-hist(dabp4.2[,2], breaks=25 plot=FALSE)
+# deer AB
+dabp1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/dABprev_burned_multi_chains.csv')
+dabp1.9.hist1<-hist(dabp1.9[,2], breaks=25, plot=FALSE)
+dabp1.9.hist2<-hist(dabp1.9[,3], breaks=25, plot=FALSE)
+dabp1.9.hist3<-hist(dabp1.9[,4], breaks=25, plot=FALSE)
+dabp1.9.hist4<-hist(dabp1.9[,5], breaks=25, plot=FALSE)
+
+dabp3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/dPrev_burned_multi_chains.csv')
+dabp3.7.hist1<-hist(dabp3.7[,2], breaks=25, plot=FALSE)
+dabp3.7.hist2<-hist(dabp3.7[,3], breaks=25, plot=FALSE)
+dabp3.7.hist3<-hist(dabp3.7[,4], breaks=25, plot=FALSE)
+dabp3.7.hist4<-hist(dabp3.7[,5], breaks=25, plot=FALSE)
+dabp3.7.hist5<-hist(dabp3.7[,6], breaks=25, plot=FALSE)
+
+dabp5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/dPrev_burned_multi_chains.csv')
+dabp5.5.hist1<-hist(dabp5.5[,2], breaks=25, plot=FALSE)
+dabp5.5.hist2<-hist(dabp5.5[,3], breaks=25, plot=FALSE)
+dabp5.5.hist3<-hist(dabp5.5[,4], breaks=25, plot=FALSE)
+dabp5.5.hist4<-hist(dabp5.5[,5], breaks=25, plot=FALSE)
+dabp5.5.hist6<-hist(dabp5.5[,6], breaks=25, plot=FALSE)
 
 empirical.dabp.hist<-hist(ilogit(empirical[,4]), breaks=25, plot=FALSE)
 ymax.dab<-max(c(dabp2.2.hist$density, dabp2.4.hist$density, dabp4.2.hist$density, empirical.dabp.hist$density))
 
 png(file='~/Desktop/Multivar_Metropolis_Prevalence_Comparison.png', height=10, width=30, units='cm', res=300)
 par(mfrow=c(1,3), mar=c(8,2,4,2))
-plot(empirical.ap.hist$mids, empirical.ap.hist$density, ylim=c(0,ymax), type='l', 
-     axes=FALSE, xlab='', ylab='', las=1, xlim=c(0,0.15))
+plot(empirical.ap.hist$mids, empirical.ap.hist$density, type='l', ylim=c(0,250),
+     axes=FALSE, xlab='', ylab='', las=1, xlim=c(0,0.04))
 axis(side=1, cex.axis=2, cex.lab=2)
 mtext(text='% Infection \nAdult Ticks', side=1, line=6, cex=1.5)
 polygon(empirical.ap.hist$mids, empirical.ap.hist$density, col=alpha('violetred3',0.25))
-polygon(ap2.2.hist$mids, ap2.2.hist$density, col=alpha('violetred3',0.25))
-polygon(ap2.4.hist$mids, ap2.4.hist$density, col=alpha('violetred3',0.25))
-polygon(ap4.2.hist$mids, ap4.2.hist$density, col=alpha('violetred3',0.25))
+polygon(ap1.9.hist1$mids, ap1.9.hist1$density, col=alpha('violetred3',0.1))
+polygon(ap1.9.hist2$mids, ap1.9.hist2$density, col=alpha('violetred3',0.1))
+polygon(ap1.9.hist3$mids, ap1.9.hist3$density, col=alpha('violetred3',0.1))
+polygon(ap1.9.hist4$mids, ap1.9.hist4$density, col=alpha('violetred3',0.1))
+polygon(ap3.7.hist1$mids, ap3.7.hist1$density, col=alpha('violetred3',0.1))
+polygon(ap3.7.hist2$mids, ap3.7.hist2$density, col=alpha('violetred3',0.1))
+polygon(ap3.7.hist3$mids, ap3.7.hist3$density, col=alpha('violetred3',0.1))
+polygon(ap3.7.hist4$mids, ap3.7.hist4$density, col=alpha('violetred3',0.1))
+polygon(ap3.7.hist5$mids, ap3.7.hist5$density, col=alpha('violetred3',0.1))
+polygon(ap5.5.hist1$mids, ap5.5.hist1$density, col=alpha('violetred3',0.1))
+polygon(ap5.5.hist2$mids, ap5.5.hist2$density, col=alpha('violetred3',0.1))
+polygon(ap5.5.hist3$mids, ap5.5.hist3$density, col=alpha('violetred3',0.1))
+polygon(ap5.5.hist4$mids, ap5.5.hist4$density, col=alpha('violetred3',0.1))
+polygon(ap5.5.hist5$mids, ap5.5.hist5$density, col=alpha('violetred3',0.1))
 title('A', adj=0, cex.main=3)
 
 plot(c(min(empirical.dp.hist$mids), empirical.dp.hist$mids, max(empirical.dp.hist$mids)), 
