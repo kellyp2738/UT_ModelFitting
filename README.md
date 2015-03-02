@@ -68,3 +68,9 @@ Outputs from full model fitting runs are parsed and visualized in the following 
 - Marginal posterior distributions for estimated parameters are visualized.
 - Marginal posterior distributions of disease prevalence are visualized in conjunction with empirial prevalence distributions to check that the model outputs are consistent with empirical data. **see Note 2 above**
 - Scatterplots showing the correlations between estimated parameter values are  generated.
+
+###plot_toy_model.r
+
+**Note: run interactively.**
+
+This script plots the output of toy model runs for different preference values and relative abundance scenarios.
