@@ -14,6 +14,7 @@ import math
 import pylab
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
+import matplotlib.figure as fig
 from decimal import *
 import decimal
 import time
@@ -118,7 +119,7 @@ def SIRprevalences(run_params, R, finalTime, counter, num_prefs, racc_pop):
     findN=1
     findA=1
     
-    enviro_capacity = 40000 #e_cap # separate parameter
+    enviro_capacity = 200000 #e_cap # separate parameter
     
     deathL_off = 0.02
     deathN_off = 0.01
@@ -258,12 +259,12 @@ def mkPlot(ts):
 
     time = np.arange(0, len(ts[:,1]))
     
-    plt.figure(figsize=(10,10), dpi=300)
+    #plt.figure(figsize=(10,10), dpi=300)
     
     plt.subplot(2,2,1)
     plt.plot(time, ts[:,0], "r", time, ts[:,1], "g", time, ts[:,2], "b", time, ts[:,3], "k", time, ts[:,4], "c")
     #plt.plot(time, (ts[:,0]+ts[:,1]+ts[:,2]+ts[:,3]+ts[:,4]))
-    plt.legend(("S(L)", "S(N)", "S(A)", "I(N)", "I(A)"), loc=0)
+    #plt.legend(("S(L)", "S(N)", "S(A)", "I(N)", "I(A)"), loc=0)
     plt.ylabel("Total Number of Ticks on Deer")
     plt.xlabel("Time")
     plt.xticks(rotation=45)
@@ -281,7 +282,7 @@ def mkPlot(ts):
     plt.subplot(2,2,3)
     plt.plot(time, ts[:,13], "r", time, ts[:,14], "g", time, ts[:,15], "b", time, ts[:,16], "k", time, ts[:,17], "c", time, ts[:,18], "m", time, ts[:,19], "y")
     #plt.plot(time, (ts[:,14]+ts[:,15]+ts[:,16]+ts[:,17]+ts[:,18]+ts[:,19]+ts[:,20]))
-    plt.legend(("S(L) off", "S(L/N) off", "S(N/A) off", "S(A) off", "I(L/N) off", "I(N/A) off", "I(A) off"), loc=0)
+    #plt.legend(("S(L) off", "S(L/N) off", "S(N/A) off", "S(A) off", "I(L/N) off", "I(N/A) off", "I(A) off"), loc=0)
     plt.ylabel("Number of Ticks off Hosts")
     plt.xlabel("Time")
     plt.xticks(rotation=45)
@@ -290,12 +291,12 @@ def mkPlot(ts):
     plt.plot(time, ts[:,10], "r", time, ts[:,11], "g", time, ts[:,12], "b")
     #plt.ylim([0,30])
     #plt.legend(("Deer", "Raccoons"), loc=0)
-    plt.legend(("SDeer", "IDeer", "RDeer"), loc=0)
+    #plt.legend(("SDeer", "IDeer", "RDeer"), loc=0)
     plt.ylabel("Number of Hosts")
     plt.xlabel("Time")
     plt.xticks(rotation=45)
     
-    plt.tight_layout()
-    #plt.show()
+    #fig.set_tight_layout(True)
+    plt.show()
     
-    plt.savefig('VD_odeint_200D_200R_Find2.png')
+    #plt.savefig('VD_odeint_200D_200R_Find2.png')
