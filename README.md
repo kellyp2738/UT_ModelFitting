@@ -53,3 +53,18 @@ VeggieDeath_multivariate_logscale.py
 This script outputs as CSV files the expected disease prevalence values from  a set of hard-coded preference and transmission parameter values (no parameter inference).
 
 	python toy_model_prevalence.py
+	
+###RevisedDissertationPlots.r
+
+**Note 1: this is not a stand-alone script. It should be run interactively in R or R Studio.**
+
+**Note 2: currently the associated script *ticks.r* and the empirical disease prevalence data are not online -- these components are necessary for plotting empirical data**. 
+
+The data (model outputs) are large files not available online. However, the python scripts can be used to generate new model fitting data that can be visualized with this file. Changes to directory paths for data will be necessary in order for this script to run.
+
+Outputs from full model fitting runs are parsed and visualized in the following ways:
+
+- Data from multiple MCMC chains are reorganized and checked for evidence of convergence using the Gelman-Rubin convergence statistic.
+- Marginal posterior distributions for estimated parameters are visualized.
+- Marginal posterior distributions of disease prevalence are visualized in conjunction with empirial prevalence distributions to check that the model outputs are consistent with empirical data. **see Note 2 above**
+- Scatterplots showing the correlations between estimated parameter values are  generated.
