@@ -437,8 +437,9 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 #else:
                 #	old_step = steps_log[cs-1]
                 it_log[cs+1]=i #log which iteration we're adjusting at
-                rate=sum(accept_rate_log[i-interval])/interval #number of times parameter proposal was accepted
+                rate=sum(accept_rate_log[i-interval:i])/interval #number of times parameter proposal was accepted
                 a_rates[cs+1]=rate
+                print rate
                 if rate > 0.3:
                     new_step = steps_log[cs] + 0.005 #increase the step size
                     if new_step > 1: #no parameter value should exceed 1... very unlikely this catch will be needed:
