@@ -16,13 +16,12 @@ def calculate_prev(model_output): # take the population sizes and turn them into
     
     return all_prevs
 
-
-
 #run_pars=[0.2, 0.06, 0.26]
 racc_pops=[900, 700, 500]
 deer_pops=[90, 290, 490]
 
-prefs=[0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
+#prefs=[0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
+prefs=np.arange(0.01,1,0.01)
 
 header=['prefs', 'Scenario_1', 'Scenario_2', 'Scenario_3']
 save_tick=np.array([[0.0]*len(header)]*len(prefs))
@@ -45,9 +44,9 @@ for j in range(len(prefs)):
 		save_deer[j,i+1]=prevs[2]
 		save_deerAB[j,i+1]=prevs[3]
                  
-save_final_tick=np.vstack((header, save_tick))
-save_final_deer=np.vstack((header, save_deer))
-save_final_deerAB=np.vstack((header, save_deerAB))
-np.savetxt('toy_model_scenarios_tick_out.csv', save_final_tick, delimiter=',', fmt='%20s')
-np.savetxt('toy_model_scenarios_deer_out.csv', save_final_deer, delimiter=',', fmt='%20s')
+#save_final_tick=np.vstack((header, save_tick))
+#save_final_deer=np.vstack((header, save_deer))
+#save_final_deerAB=np.vstack((header, save_deerAB))
+#np.savetxt('toy_model_scenarios_tick_out.csv', save_final_tick, delimiter=',', fmt='%20s')
+#np.savetxt('toy_model_scenarios_deer_out.csv', save_final_deer, delimiter=',', fmt='%20s')
 np.savetxt('toy_model_scenarios_deerAB_out.csv', save_final_deerAB, delimiter=',', fmt='%20s')
