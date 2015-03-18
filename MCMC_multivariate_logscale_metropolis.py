@@ -439,7 +439,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 it_log[cs+1]=i #log which iteration we're adjusting at
                 rate=sum(accept_rate_log[i-interval:i])/interval #number of times parameter proposal was accepted
                 a_rates[cs]=rate #should be at index [cs] b/c this is the acceptance rate for the previous iteration range
-                print rate
+                #print rate
                 if rate > 0.3:
                 	steps_log[cs+1] = steps_log[cs] + 0.0005 #increase step size so more proposals get rejected
                 elif rate < 0.1: #decrease step size so fewer proposals get rejected
