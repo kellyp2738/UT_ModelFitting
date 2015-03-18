@@ -300,7 +300,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # ----------------------------------------------------------------------------------------------
     
     # -- Specify the iterations at which to compute per-parameter acceptance rates and adjust step sizes
-    interval=1000
+    interval=5000
     check_steps=range(0+interval,50000+interval,interval)
     
     # -- Build a data structure for storing the adaptive step size info
@@ -438,22 +438,17 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 #	old_step = steps_log[cs-1]
                 it_log[cs+1]=i #log which iteration we're adjusting at
                 rate=sum(accept_rate_log[i-interval:i])/interval #number of times parameter proposal was accepted
-                a_rates[cs+1]=rate
+                a_rates[cs]=rate #should be at index [cs] b/c this is the acceptance rate for the previous iteration range
                 print rate
                 if rate > 0.3:
-                    new_step = steps_log[cs] + 0.005 #increase the step size
-                    if new_step > 1: #no parameter value should exceed 1... very unlikely this catch will be needed:
-                        adjusted_new_step = 1-0.00001
-                        steps_log[cs+1] = adjusted_new_step
-                    else:
-                        steps_log[cs+1] = new_step
-                elif rate < 0.1:
-                    new_step = steps_log[cs] - 0.005
-                    if new_step <= 0: #step size must be positive
-                        adjusted_new_step = 0.00001
-                        steps_log[cs+1] = adjusted_new_step
-                    else:
-                        steps_log[cs+1] = new_step
+                	steps_log[cs+1] = steps_log[cs] + 0.0005 #increase step size so more proposals get rejected
+                elif rate < 0.1: #decrease step size so fewer proposals get rejected
+                	if steps_log[cs] <= 0.0005:
+                		new_step = 0.00001
+                		steps_log[cs+1] = new_step
+                	else:
+                		new_step = steps_log[cs] - 0.0005
+                		steps_log[cs+1] = new_step
                 else:
                     steps_log[cs+1] = steps_log[cs]
                 #print('iteration log value', it_log[cs+1], 'check step', cs, 'acceptance rate', rate, 'new step', steps_log[cs+1])
@@ -640,7 +635,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         
     # get the covariance matrix for the proposal distribution... would be nice to have
     # this outside the for-loop so the calculation didn't need to be repeated, but so it goes...
-    for_cov=iteration_log[50000:100000,]
+    for_cov=iteration_log[50000+interval:100000,]
     inflate=1.5
     proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
     proposal_mean=np.mean(for_cov, axis=0)
