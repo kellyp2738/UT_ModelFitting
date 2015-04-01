@@ -305,7 +305,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     # -- Build a data structure for storing the adaptive step size info
     steps_log=np.zeros(shape=((len(check_steps)+1), 1)) # with block updating, all parameters have the same acceptance rate
-    steps_log[0]=0.05 #set the first step
+    steps_log[0]=0.03 #set the first step
     
     # -- Make a vector to store the acceptance rates used in step size calibration
     a_rates=np.zeros(shape=((len(check_steps)+1), 1))
