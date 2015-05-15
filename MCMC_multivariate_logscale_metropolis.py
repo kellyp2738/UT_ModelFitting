@@ -633,14 +633,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 t_eq_log[i] = t_eq_log[i-1]   
                 #step_size_log[i] = step_size_log[i-1]
             
-    for i in range(100000,iterations):
-
-	# get the covariance matrix for the proposal distribution
-	# proposal distribution is defined by ALL iterations after adaptive step size checking stops
-    	for_cov=iteration_log[50000+interval:i,]
-    	inflate=1.5
-    	proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
-    	proposal_mean=np.mean(for_cov, axis=0)   
+    for i in range(100000,iterations):   
     
         # ----------------------------------------------------------------------------------------------
         # -- Subsequent iterations build the chain
@@ -669,6 +662,17 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             with open(proposed_run_name, 'a') as g:
                 g.write(" ".join(map(str, accepted)))               
             #np.savetxt(proposed_run_name, proposed, delimiter=',', fmt='%20s')
+
+	# ----------------------------------------------------------------------------------------------
+        # -- Propose new parameters through a random walk
+        # ----------------------------------------------------------------------------------------------
+
+	# get the covariance matrix for the proposal distribution
+	# proposal distribution is defined by ALL iterations after adaptive step size checking stops
+    	for_cov=iteration_log[50000+interval:i,]
+    	inflate=1.5
+    	proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
+    	proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
         
         # sample on the log-scale from a multivariate normal distribution
         log_theta_star = np.random.multivariate_normal(proposal_mean, proposal_covariance) # return new par vector of same length as means vector
