@@ -321,246 +321,27 @@ post.plot<-function(param.data, param.name, y.label, color, add.line=NULL, add.l
 }
 
 par(mfrow=c(3,5))
-blues<-brewer.pal(5, 'Blues')
-post.plot(pref1.9, expression(phi['D']), 'Scenario 1', blues[1])
-post.plot(pref3.7, expression(phi['D']), 'Scenario 2', blues[2])
-post.plot(pref5.5, expression(phi['D']), 'Scenario 3', blues[3])
-post.plot(pref7.3, expression(phi['D']), 'Scenario 4', blues[4])
-post.plot(pref9.1, expression(phi['D']), 'Scenario 5', blues[5])
+blues<-brewer.pal(5, 'Blues') #original color from dissertation: 'darkolive4'
+post.plot(pref1.9, expression(phi['D']), 'Scenario 1', blues[1], add.line=0.5, add.line.color='red')
+post.plot(pref3.7, expression(phi['D']), 'Scenario 2', blues[2], add.line=0.5, add.line.color='red')
+post.plot(pref5.5, expression(phi['D']), 'Scenario 3', blues[3], add.line=0.5, add.line.color='red')
+post.plot(pref7.3, expression(phi['D']), 'Scenario 4', blues[4], add.line=0.5, add.line.color='red')
+post.plot(pref9.1, expression(phi['D']), 'Scenario 5', blues[5], add.line=0.5, add.line.color='red')
 
 #par(mfrow=c(1,5))
-reds<-brewer.pal(5, 'Reds')
-post.plot(rhoTD1.9, expression(rho['D'%->%'T']), 'Scenario 1', reds[1])
-post.plot(rhoTD3.7, expression(rho['D'%->%'T']), 'Scenario 2', reds[2])
-post.plot(rhoTD5.5, expression(rho['D'%->%'T']), 'Scenario 3', reds[3])
-post.plot(rhoTD7.3, expression(rho['D'%->%'T']), 'Scenario 4', reds[4])
-post.plot(rhoTD9.1, expression(rho['D'%->%'T']), 'Scenario 5', reds[5])
+reds<-brewer.pal(5, 'Reds') #original color from dissertation: 'orchid4'
+post.plot(rhoTD1.9, expression(rho['D'%->%'T']), 'Scenario 1', reds[1], add.line=0.06, add.line.color='black')
+post.plot(rhoTD3.7, expression(rho['D'%->%'T']), 'Scenario 2', reds[2], add.line=0.06, add.line.color='black')
+post.plot(rhoTD5.5, expression(rho['D'%->%'T']), 'Scenario 3', reds[3], add.line=0.06, add.line.color='black')
+post.plot(rhoTD7.3, expression(rho['D'%->%'T']), 'Scenario 4', reds[4], add.line=0.06, add.line.color='black')
+post.plot(rhoTD9.1, expression(rho['D'%->%'T']), 'Scenario 5', reds[5], add.line=0.06, add.line.color='black')
 
-greens<-brewer.pal(5, 'Greens')
-post.plot(rhoDT1.9, expression(rho['T'%->%'D']), 'Scenario 1', greens[1])
-post.plot(rhoDT3.7, expression(rho['T'%->%'D']), 'Scenario 2', greens[2])
-post.plot(rhoDT5.5, expression(rho['T'%->%'D']), 'Scenario 3', greens[3])
-post.plot(rhoDT7.3, expression(rho['T'%->%'D']), 'Scenario 4', greens[4])
-post.plot(rhoDT9.1, expression(rho['T'%->%'D']), 'Scenario 5', greens[5])
-
-pref1.9.hist1<-hist(exp(pref1.9[,2]), breaks=30, plot=FALSE)
-plot(pref1.9.hist1$mids, pref1.9.hist1$counts, type='l', xlim=c(0,1), ylim=c(0, 19500), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(pref1.9.hist1$mids),pref1.9.hist1$mids, max(pref1.9.hist1$mids)), y=c(0,pref1.9.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
-axis(side=1, cex.axis=1.5)
-mtext(text='Scenario 1', side=2, line=0.5)
-abline(v=0.5, col='red', lty=2, lwd=2)
-
-pref1.9.hist2<-hist(exp(pref1.9[,3]), breaks=30, plot=FALSE)
-lines(pref1.9.hist2$mids, pref1.9.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref1.9.hist2$mids),pref1.9.hist2$mids, max(pref1.9.hist2$mids)), y=c(0,pref1.9.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref1.9.hist3<-hist(exp(pref1.9[,4]), breaks=30, plot=FALSE)
-lines(pref1.9.hist3$mids, pref1.9.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref1.9.hist3$mids),pref1.9.hist3$mids, max(pref1.9.hist3$mids)), y=c(0,pref1.9.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref1.9.hist4<-hist(exp(pref1.9[,5]), breaks=30, plot=FALSE)
-lines(pref1.9.hist4$mids, pref1.9.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref1.9.hist4$mids),pref1.9.hist4$mids, max(pref1.9.hist4$mids)), y=c(0,pref1.9.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref1.9.hist5<-hist(exp(pref1.9[,6]), breaks=30, plot=FALSE)
-lines(pref1.9.hist5$mids, pref1.9.hist5$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref1.9.hist5$mids),pref1.9.hist5$mids, max(pref1.9.hist5$mids)), y=c(0,pref1.9.hist5$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-
-#RHODT (tick to deer)
-rhoDT1.9.hist1<-hist(exp(rhoDT1.9[,2]), breaks=30, plot=FALSE)
-plot(rhoDT1.9.hist1$mids, rhoDT1.9.hist1$counts, type='l', xlim=c(0,0.5), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoDT1.9.hist1$mids),rhoDT1.9.hist1$mids, max(rhoDT1.9.hist1$mids)), y=c(0,rhoDT1.9.hist1$counts,0), col=alpha('darkorange2', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.26, col='black', lty=2, lwd=2)
-
-rhoDT1.9.hist2<-hist(exp(rhoDT1.9[,3]), breaks=30, plot=FALSE)
-lines(rhoDT1.9.hist2$mids, rhoDT1.9.hist2$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT1.9.hist2$mids),rhoDT1.9.hist2$mids, max(rhoDT1.9.hist2$mids)), y=c(0,rhoDT1.9.hist2$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT1.9.hist3<-hist(exp(rhoDT1.9[,4]), breaks=30, plot=FALSE)
-lines(rhoDT1.9.hist3$mids, rhoDT1.9.hist3$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT1.9.hist3$mids),rhoDT1.9.hist3$mids, max(rhoDT1.9.hist3$mids)), y=c(0,rhoDT1.9.hist3$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT1.9.hist4<-hist(exp(rhoDT1.9[,5]), breaks=30, plot=FALSE)
-lines(rhoDT1.9.hist4$mids, rhoDT1.9.hist4$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT1.9.hist4$mids),rhoDT1.9.hist4$mids, max(rhoDT1.9.hist4$mids)), y=c(0,rhoDT1.9.hist4$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT1.9.hist5<-hist(exp(rhoDT1.9[,6]), breaks=30, plot=FALSE)
-lines(rhoDT1.9.hist5$mids, rhoDT1.9.hist5$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT1.9.hist5$mids),rhoDT1.9.hist5$mids, max(rhoDT1.9.hist5$mids)), y=c(0,rhoDT1.9.hist5$counts,0), col=alpha('darkorange2', 0.25))
-
-#RHOTD (deer to tick)
-rhoTD1.9.hist1<-hist(exp(rhoTD1.9[,2]), breaks=30, plot=FALSE)
-plot(rhoTD1.9.hist1$mids, rhoTD1.9.hist1$counts, type='l', xlim=c(0,1), ylim=c(0,12000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoTD1.9.hist1$mids),rhoTD1.9.hist1$mids, max(rhoTD1.9.hist1$mids)), y=c(0,rhoTD1.9.hist1$counts,0), col=alpha('orchid4', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.06, col='black', lty=2, lwd=2)
-
-rhoTD1.9.hist2<-hist(exp(rhoTD1.9[,3]), breaks=30, plot=FALSE)
-lines(rhoTD1.9.hist2$mids, rhoTD1.9.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD1.9.hist2$mids),rhoTD1.9.hist2$mids, max(rhoTD1.9.hist2$mids)), y=c(0,rhoTD1.9.hist2$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD1.9.hist3<-hist(exp(rhoTD1.9[,4]), breaks=30, plot=FALSE)
-lines(rhoTD1.9.hist3$mids, rhoTD1.9.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD1.9.hist3$mids),rhoTD1.9.hist3$mids, max(rhoTD1.9.hist3$mids)), y=c(0,rhoTD1.9.hist3$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD1.9.hist4<-hist(exp(rhoTD1.9[,5]), breaks=30, plot=FALSE)
-lines(rhoTD1.9.hist4$mids, rhoTD1.9.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD1.9.hist4$mids),rhoTD1.9.hist4$mids, max(rhoTD1.9.hist4$mids)), y=c(0,rhoTD1.9.hist4$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD1.9.hist5<-hist(exp(rhoTD1.9[,6]), breaks=30, plot=FALSE)
-lines(rhoTD1.9.hist5$mids, rhoTD1.9.hist5$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD1.9.hist5$mids),rhoTD1.9.hist5$mids, max(rhoTD1.9.hist5$mids)), y=c(0,rhoTD1.9.hist5$counts,0), col=alpha('orchid4', 0.25))
-#dev.off()
-
-## --- 300/700 scenario --- 
-
-## plots to show convergence/overlap of posteriors for different chains (for my own edification/possibly for supplement)
-
-#PREF
-pref3.7.hist1<-hist(exp(pref3.7[,2]), breaks=30, plot=FALSE)
-plot(pref3.7.hist1$mids, pref3.7.hist1$counts, type='l', xlim=c(0,1), ylim=c(0,55000), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(pref3.7.hist1$mids),pref3.7.hist1$mids, max(pref3.7.hist1$mids)), y=c(0,pref3.7.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
-axis(side=1, cex.axis=1.5)
-mtext(text='Scenario 2', side=2, line=0.5)
-abline(v=0.5, col='red', lty=2, lwd=2)
-
-pref3.7.hist2<-hist(exp(pref3.7[,3]), breaks=30, plot=FALSE)
-lines(pref3.7.hist2$mids, pref3.7.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref3.7.hist2$mids),pref3.7.hist2$mids, max(pref3.7.hist2$mids)), y=c(0,pref3.7.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref3.7.hist3<-hist(exp(pref3.7[,4]), breaks=30, plot=FALSE)
-lines(pref3.7.hist3$mids, pref3.7.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref3.7.hist3$mids),pref3.7.hist3$mids, max(pref3.7.hist3$mids)), y=c(0,pref3.7.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref3.7.hist4<-hist(exp(pref3.7[,5]), breaks=30, plot=FALSE)
-lines(pref3.7.hist4$mids, pref3.7.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref3.7.hist4$mids),pref3.7.hist4$mids, max(pref3.7.hist4$mids)), y=c(0,pref3.7.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref3.7.hist5<-hist(exp(pref3.7[,6]), breaks=30, plot=FALSE)
-lines(pref3.7.hist5$mids, pref3.7.hist5$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref3.7.hist5$mids),pref3.7.hist5$mids, max(pref3.7.hist5$mids)), y=c(0,pref3.7.hist5$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-#RHODT (tick to deer)
-rhoDT3.7.hist1<-hist(exp(rhoDT3.7[,2]), breaks=30, plot=FALSE)
-plot(rhoDT3.7.hist1$mids, rhoDT3.7.hist1$counts, type='l', xlim=c(0,0.5), ylim=c(0,40000), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoDT3.7.hist1$mids),rhoDT3.7.hist1$mids, max(rhoDT3.7.hist1$mids)), y=c(0,rhoDT3.7.hist1$counts,0), col=alpha('darkorange2', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.26, col='black', lty=2, lwd=2)
-
-rhoDT3.7.hist2<-hist(exp(rhoDT3.7[,3]), breaks=30, plot=FALSE)
-lines(rhoDT3.7.hist2$mids, rhoDT3.7.hist2$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT3.7.hist2$mids),rhoDT3.7.hist2$mids, max(rhoDT3.7.hist2$mids)), y=c(0,rhoDT3.7.hist2$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT3.7.hist3<-hist(exp(rhoDT3.7[,4]), breaks=30, plot=FALSE)
-lines(rhoDT3.7.hist3$mids, rhoDT3.7.hist3$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT3.7.hist3$mids),rhoDT3.7.hist3$mids, max(rhoDT3.7.hist3$mids)), y=c(0,rhoDT3.7.hist3$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT3.7.hist4<-hist(exp(rhoDT3.7[,5]), breaks=30, plot=FALSE)
-lines(rhoDT3.7.hist4$mids, rhoDT3.7.hist4$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT3.7.hist4$mids),rhoDT3.7.hist4$mids, max(rhoDT3.7.hist4$mids)), y=c(0,rhoDT3.7.hist4$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT3.7.hist5<-hist(exp(rhoDT3.7[,6]), breaks=30, plot=FALSE)
-lines(rhoDT3.7.hist5$mids, rhoDT3.7.hist5$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT3.7.hist5$mids),rhoDT3.7.hist5$mids, max(rhoDT3.7.hist5$mids)), y=c(0,rhoDT3.7.hist5$counts,0), col=alpha('darkorange2', 0.25))
-
-#RHOTD (deer to tick)
-rhoTD3.7.hist1<-hist(exp(rhoTD3.7[,2]), breaks=30, plot=FALSE)
-plot(rhoTD3.7.hist1$mids, rhoTD3.7.hist1$counts, type='l', xlim=c(0,1), c(0,25000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoTD3.7.hist1$mids),rhoTD3.7.hist1$mids, max(rhoTD3.7.hist1$mids)), y=c(0,rhoTD3.7.hist1$counts,0), col=alpha('orchid4', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.06, col='black', lty=2, lwd=2)
-
-rhoTD3.7.hist2<-hist(exp(rhoTD3.7[,3]), breaks=30, plot=FALSE)
-lines(rhoTD3.7.hist2$mids, rhoTD3.7.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD3.7.hist2$mids),rhoTD3.7.hist2$mids, max(rhoTD3.7.hist2$mids)), y=c(0,rhoTD3.7.hist2$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD3.7.hist3<-hist(exp(rhoTD3.7[,4]), breaks=30, plot=FALSE)
-lines(rhoTD3.7.hist3$mids, rhoTD3.7.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD3.7.hist3$mids),rhoTD3.7.hist3$mids, max(rhoTD3.7.hist3$mids)), y=c(0,rhoTD3.7.hist3$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD3.7.hist4<-hist(exp(rhoTD3.7[,5]), breaks=30, plot=FALSE)
-lines(rhoTD3.7.hist4$mids, rhoTD3.7.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD3.7.hist4$mids),rhoTD3.7.hist4$mids, max(rhoTD3.7.hist4$mids)), y=c(0,rhoTD3.7.hist4$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD3.7.hist5<-hist(exp(rhoTD3.7[,6]), breaks=30, plot=FALSE)
-lines(rhoTD3.7.hist5$mids, rhoTD3.7.hist5$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD3.7.hist5$mids),rhoTD3.7.hist5$mids, max(rhoTD3.7.hist5$mids)), y=c(0,rhoTD3.7.hist5$counts,0), col=alpha('orchid4', 0.25))
-
-## --- 500/500 scenario --- 
-
-## plots to show convergence/overlap of posteriors for different chains (for my own edification/possibly for supplement)
-pref5.5.hist1<-hist(exp(pref5.5[,2]), breaks=30, plot=FALSE)
-plot(pref5.5.hist1$mids, pref5.5.hist1$counts, type='l', xlim=c(0,1), xlab=expression(phi['D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(pref5.5.hist1$mids),pref5.5.hist1$mids, max(pref5.5.hist1$mids)), y=c(0,pref5.5.hist1$counts,0), col=alpha('darkolivegreen4', 0.25))
-axis(side=1, cex.axis=1.5)
-mtext(text='Scenario 3', side=2, line=0.5)
-abline(v=0.5, col='red', lty=2, lwd=2)
-
-pref5.5.hist2<-hist(exp(pref5.5[,3]), breaks=30, plot=FALSE)
-lines(pref5.5.hist2$mids, pref5.5.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref5.5.hist2$mids),pref5.5.hist2$mids, max(pref5.5.hist2$mids)), y=c(0,pref5.5.hist2$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref5.5.hist3<-hist(exp(pref5.5[,4]), breaks=30, plot=FALSE)
-lines(pref5.5.hist3$mids, pref5.5.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref5.5.hist3$mids),pref5.5.hist3$mids, max(pref5.5.hist3$mids)), y=c(0,pref5.5.hist3$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-pref5.5.hist4<-hist(exp(pref5.5[,5]), breaks=30, plot=FALSE)
-lines(pref5.5.hist4$mids, pref5.5.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(pref5.5.hist4$mids),pref5.5.hist4$mids, max(pref5.5.hist4$mids)), y=c(0,pref5.5.hist4$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-#pref5.5.hist5<-hist(exp(pref5.5[,6]), breaks=30, plot=FALSE)
-#lines(pref5.5.hist5$mids, pref5.5.hist5$counts, type='l', xlim=c(0,1))
-#polygon(x=c(min(pref5.5.hist5$mids),pref5.5.hist5$mids, max(pref5.5.hist5$mids)), y=c(0,pref5.5.hist5$counts,0), col=alpha('darkolivegreen4', 0.25))
-
-#RHODT (tick to deer)
-rhoDT5.5.hist1<-hist(exp(rhoDT5.5[,2]), breaks=30, plot=FALSE)
-plot(rhoDT5.5.hist1$mids, rhoDT5.5.hist1$counts, type='l', xlim=c(0,0.5), ylim=c(0,33000), xlab=expression(rho['T'%->%'D']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoDT5.5.hist1$mids),rhoDT5.5.hist1$mids, max(rhoDT5.5.hist1$mids)), y=c(0,rhoDT5.5.hist1$counts,0), col=alpha('darkorange2', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.26, col='black', lty=2, lwd=2)
-
-rhoDT5.5.hist2<-hist(exp(rhoDT5.5[,3]), breaks=30, plot=FALSE)
-lines(rhoDT5.5.hist2$mids, rhoDT5.5.hist2$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT5.5.hist2$mids),rhoDT5.5.hist2$mids, max(rhoDT5.5.hist2$mids)), y=c(0,rhoDT5.5.hist2$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT5.5.hist3<-hist(exp(rhoDT5.5[,4]), breaks=30, plot=FALSE)
-lines(rhoDT5.5.hist3$mids, rhoDT5.5.hist3$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT5.5.hist3$mids),rhoDT5.5.hist3$mids, max(rhoDT5.5.hist3$mids)), y=c(0,rhoDT5.5.hist3$counts,0), col=alpha('darkorange2', 0.25))
-
-rhoDT5.5.hist4<-hist(exp(rhoDT5.5[,5]), breaks=30, plot=FALSE)
-lines(rhoDT5.5.hist4$mids, rhoDT5.5.hist4$counts, type='l', xlim=c(0,0.5))
-polygon(x=c(min(rhoDT5.5.hist4$mids),rhoDT5.5.hist4$mids, max(rhoDT5.5.hist4$mids)), y=c(0,rhoDT5.5.hist4$counts,0), col=alpha('darkorange2', 0.25))
-
-#rhoDT5.5.hist5<-hist(exp(rhoDT5.5[,6]), breaks=30, plot=FALSE)
-#lines(rhoDT5.5.hist5$mids, rhoDT5.5.hist5$counts, type='l', xlim=c(0,0.5))
-#polygon(x=c(min(rhoDT5.5.hist5$mids),rhoDT5.5.hist5$mids, max(rhoDT5.5.hist5$mids)), y=c(0,rhoDT5.5.hist5$counts,0), col=alpha('darkorange2', 0.25))
-
-#RHOTD (deer to tick)
-rhoTD5.5.hist1<-hist(exp(rhoTD5.5[,2]), breaks=30, plot=FALSE)
-plot(rhoTD5.5.hist1$mids, rhoTD5.5.hist1$counts, type='l', xlim=c(0,1), c(0,20000), xlab=expression(rho['D'%->%'T']), ylab='', axes=FALSE, cex.lab=1.5)
-polygon(x=c(min(rhoTD5.5.hist1$mids),rhoTD5.5.hist1$mids, max(rhoTD5.5.hist1$mids)), y=c(0,rhoTD5.5.hist1$counts,0), col=alpha('orchid4', 0.25))
-axis(side=1, cex.axis=1.5)
-abline(v=0.06, col='black', lty=2, lwd=2)
-
-rhoTD5.5.hist2<-hist(exp(rhoTD5.5[,3]), breaks=30, plot=FALSE)
-lines(rhoTD5.5.hist2$mids, rhoTD5.5.hist2$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD5.5.hist2$mids),rhoTD5.5.hist2$mids, max(rhoTD5.5.hist2$mids)), y=c(0,rhoTD5.5.hist2$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD5.5.hist3<-hist(exp(rhoTD5.5[,4]), breaks=30, plot=FALSE)
-lines(rhoTD5.5.hist3$mids, rhoTD5.5.hist3$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD5.5.hist3$mids),rhoTD5.5.hist3$mids, max(rhoTD5.5.hist3$mids)), y=c(0,rhoTD5.5.hist3$counts,0), col=alpha('orchid4', 0.25))
-
-rhoTD5.5.hist4<-hist(exp(rhoTD5.5[,5]), breaks=30, plot=FALSE)
-lines(rhoTD5.5.hist4$mids, rhoTD5.5.hist4$counts, type='l', xlim=c(0,1))
-polygon(x=c(min(rhoTD5.5.hist4$mids),rhoTD5.5.hist4$mids, max(rhoTD5.5.hist4$mids)), y=c(0,rhoTD5.5.hist4$counts,0), col=alpha('orchid4', 0.25))
-
-#rhoTD5.5.hist5<-hist(exp(rhoTD5.5[,6]), breaks=30, plot=FALSE)
-#lines(rhoTD5.5.hist5$mids, rhoTD5.5.hist5$counts, type='l', xlim=c(0,1))
-#polygon(x=c(min(rhoTD5.5.hist5$mids),rhoTD5.5.hist5$mids, max(rhoTD5.5.hist5$mids)), y=c(0,rhoTD5.5.hist5$counts,0), col=alpha('orchid4', 0.25))
-
-dev.off()
+greens<-brewer.pal(5, 'Greens') #original color from dissertation: 'darkorange2'
+post.plot(rhoDT1.9, expression(rho['T'%->%'D']), 'Scenario 1', greens[1], add.line=0.26, add.line.color='black')
+post.plot(rhoDT3.7, expression(rho['T'%->%'D']), 'Scenario 2', greens[2], add.line=0.26, add.line.color='black')
+post.plot(rhoDT5.5, expression(rho['T'%->%'D']), 'Scenario 3', greens[3], add.line=0.26, add.line.color='black')
+post.plot(rhoDT7.3, expression(rho['T'%->%'D']), 'Scenario 4', greens[4], add.line=0.26, add.line.color='black')
+post.plot(rhoDT9.1, expression(rho['T'%->%'D']), 'Scenario 5', greens[5], add.line=0.26, add.line.color='black')
 
 ## example code for how you would find the 95% CI and shade in that section of the distribution
 
@@ -612,6 +393,35 @@ png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metro
 par(mfrow=c(3,3), mar=c(5,7,2,2))
 
 # row 1 (100:900 rel. abundance)
+
+plot.param.corr<-function(param.data.1, param.data.2, 
+                          param.1.name, param.2.name, 
+                          lik.data, thin.by, y.label){
+  par(mar=c(6,8,2,2))
+  thin.by.idx<-seq(1, 100001, thin.by)
+  post.colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(lik.data[,2:length(lik.data)])))))
+  plot(param.data.1[thin.by.idx,2], param.data.2[thin.by.idx,2], xlim=c(log(10^-2.5), log(1)), 
+       ylim=c(log(10^-2.5), log(1)), axes=FALSE,
+       xlab=param.1.name, ylab=param.2.name, las=1, cex.axis=1.5, 
+       cex.lab=1.5, col=post.colors[abs(round(lik.data[thin.by.idx,2]))])
+  for(chain in 3:6){
+    points(param.data.1[thin.by.idx,chain], param.data.2[thin.by.idx,chain],
+           col=post.colors[abs(round(lik.data[thin.by.idx,chain]))])
+  }
+  magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+  mtext(side=2, text=y.label, cex=1.3, line=5)
+}
+par(mfrow=c(3,5))
+plot.param.corr(pref1.9, rhoDT1.9, expression(phi['D']), expression(rho['T'%->%'D']),
+                ll1.9, 10, 'Scenario 1')
+plot.param.corr(pref3.7, rhoDT3.7, expression(phi['D']), expression(rho['T'%->%'D']),
+                ll3.7, 10, 'Scenario 1')
+plot.param.corr(pref5.5, rhoDT5.5, expression(phi['D']), expression(rho['T'%->%'D']),
+                ll5.5, 10, 'Scenario 1')
+plot.param.corr(pref7.3, rhoDT7.3, expression(phi['D']), expression(rho['T'%->%'D']),
+                ll7.3, 10, 'Scenario 1')
+plot.param.corr(pref9.1, rhoDT9.1, expression(phi['D']), expression(rho['T'%->%'D']),
+                ll9.1, 10, 'Scenario 1')
 thin.by<-seq(1, 100001, 10)
 plot(pref1.9[thin.by,2], rhoDT1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
      xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
