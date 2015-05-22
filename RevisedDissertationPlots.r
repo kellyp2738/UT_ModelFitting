@@ -372,13 +372,10 @@ abline(v=0.5, lty=2, lwd=3, col='red')
 # - log likelihoods are identical to posteriors because uniform priors are used in the model fitting (likelihood = posterior probability)
 
 ll1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/loglik_burned_multi_chains.csv')
-post1.9colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll1.9[,2:length(ll1.9)])))))
-
 ll3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/loglik_burned_multi_chains.csv')
-post3.7colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll3.7[,2:length(ll3.7)])))))
-
 ll5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/loglik_burned_multi_chains.csv')
-post5.5colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(ll5.5[,2:length(ll5.5)])))))
+ll7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/loglik_burned_multi_chains.csv')
+ll9.1<-read.csv('~/Desktop/MV_ConstantHostPop/MV_900_100/loglik_burned_multi_chains.csv')
 
 png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_Legend.png', height=10, width=5, units='cm', res=300)
 plot.new()
@@ -389,10 +386,8 @@ mtext(text = c('good'), side=2, line=0, at=c(1), las=1, cex=1.5)
 mtext(text = c('Model Fit'), side=2, line=2, cex=1.5)
 dev.off()
 
-png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_May2015.png', height=30, width=30, units='cm', res=300)
-par(mfrow=c(3,3), mar=c(5,7,2,2))
-
-# row 1 (100:900 rel. abundance)
+#png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_May2015.png', height=30, width=30, units='cm', res=300)
+#par(mfrow=c(3,3), mar=c(5,7,2,2))
 
 plot.param.corr<-function(param.data.1, param.data.2, 
                           param.1.name, param.2.name, 
@@ -411,105 +406,25 @@ plot.param.corr<-function(param.data.1, param.data.2,
   magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
   mtext(side=2, text=y.label, cex=1.3, line=5)
 }
+
 par(mfrow=c(3,5))
-plot.param.corr(pref1.9, rhoDT1.9, expression(phi['D']), expression(rho['T'%->%'D']),
-                ll1.9, 10, 'Scenario 1')
-plot.param.corr(pref3.7, rhoDT3.7, expression(phi['D']), expression(rho['T'%->%'D']),
-                ll3.7, 10, 'Scenario 1')
-plot.param.corr(pref5.5, rhoDT5.5, expression(phi['D']), expression(rho['T'%->%'D']),
-                ll5.5, 10, 'Scenario 1')
-plot.param.corr(pref7.3, rhoDT7.3, expression(phi['D']), expression(rho['T'%->%'D']),
-                ll7.3, 10, 'Scenario 1')
-plot.param.corr(pref9.1, rhoDT9.1, expression(phi['D']), expression(rho['T'%->%'D']),
-                ll9.1, 10, 'Scenario 1')
-thin.by<-seq(1, 100001, 10)
-plot(pref1.9[thin.by,2], rhoDT1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
-points(pref1.9[thin.by,3], rhoDT1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
-points(pref1.9[thin.by,4], rhoDT1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
-points(pref1.9[thin.by,5], rhoDT1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-mtext(side=2, text='Scenario 1', cex=1.3, line=5)
+plot.param.corr(pref1.9, rhoDT1.9, expression(phi['D']), expression(rho['T'%->%'D']), ll1.9, 10, 'Scenario 1')
+plot.param.corr(pref3.7, rhoDT3.7, expression(phi['D']), expression(rho['T'%->%'D']), ll3.7, 10, 'Scenario 2')
+plot.param.corr(pref5.5, rhoDT5.5, expression(phi['D']), expression(rho['T'%->%'D']), ll5.5, 10, 'Scenario 3')
+plot.param.corr(pref7.3, rhoDT7.3, expression(phi['D']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
+plot.param.corr(pref9.1, rhoDT9.1, expression(phi['D']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
 
-plot(pref1.9[thin.by,2], rhoTD1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
-points(pref1.9[thin.by,3], rhoTD1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
-points(pref1.9[thin.by,4], rhoTD1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
-points(pref1.9[thin.by,5], rhoTD1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
+plot.param.corr(pref1.9, rhoTD1.9, expression(phi['D']), expression(rho['D'%->%'T']), ll1.9, 10, 'Scenario 1')
+plot.param.corr(pref3.7, rhoTD3.7, expression(phi['D']), expression(rho['D'%->%'T']), ll3.7, 10, 'Scenario 2')
+plot.param.corr(pref5.5, rhoTD5.5, expression(phi['D']), expression(rho['D'%->%'T']), ll5.5, 10, 'Scenario 3')
+plot.param.corr(pref7.3, rhoTD7.3, expression(phi['D']), expression(rho['D'%->%'T']), ll7.3, 10, 'Scenario 4')
+plot.param.corr(pref9.1, rhoTD9.1, expression(phi['D']), expression(rho['D'%->%'T']), ll9.1, 10, 'Scenario 5')
 
-
-plot(rhoDT1.9[thin.by,2], rhoTD1.9[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post1.9colors[abs(round(ll1.9[thin.by,2]))])
-points(rhoDT1.9[thin.by,3], rhoTD1.9[thin.by,3], col=post1.9colors[abs(round(ll1.9[thin.by,3]))])
-points(rhoDT1.9[thin.by,4], rhoTD1.9[thin.by,4], col=post1.9colors[abs(round(ll1.9[thin.by,4]))])
-points(rhoDT1.9[thin.by,5], rhoTD1.9[thin.by,5], col=post1.9colors[abs(round(ll1.9[thin.by,5]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-
-
-# row 2 (300:700 relative abundance)
-plot(pref3.7[thin.by,2], rhoDT3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
-points(pref3.7[thin.by,3], rhoDT3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
-points(pref3.7[thin.by,4], rhoDT3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
-points(pref3.7[thin.by,5], rhoDT3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
-points(pref3.7[thin.by,6], rhoDT3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-mtext(side=2, text='Scenario 2', cex=1.3, line=5)
-
-plot(pref3.7[thin.by,2], rhoTD3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
-points(pref3.7[thin.by,3], rhoTD3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
-points(pref3.7[thin.by,4], rhoTD3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
-points(pref3.7[thin.by,5], rhoTD3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
-points(pref3.7[thin.by,6], rhoTD3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-
-plot(rhoDT3.7[thin.by,2], rhoTD3.7[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post3.7colors[abs(round(ll3.7[thin.by,2]))])
-points(rhoDT3.7[thin.by,3], rhoTD3.7[thin.by,3], col=post3.7colors[abs(round(ll3.7[thin.by,3]))])
-points(rhoDT3.7[thin.by,4], rhoTD3.7[thin.by,4], col=post3.7colors[abs(round(ll3.7[thin.by,4]))])
-points(rhoDT3.7[thin.by,5], rhoTD3.7[thin.by,5], col=post3.7colors[abs(round(ll3.7[thin.by,5]))])
-points(rhoDT3.7[thin.by,6], rhoTD3.7[thin.by,6], col=post3.7colors[abs(round(ll3.7[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-
-# row 3 (500:500 relative abundance)
-plot(pref5.5[thin.by,2], rhoDT5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
-points(pref5.5[thin.by,3], rhoDT5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
-points(pref5.5[thin.by,4], rhoDT5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
-points(pref5.5[thin.by,5], rhoDT5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
-points(pref5.5[thin.by,6], rhoDT5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-mtext(side=2, text='Scenario 3', cex=1.3, line=5)
-
-plot(pref5.5[thin.by,2], rhoTD5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(phi['D']), ylab=expression(rho['D'%->%'T']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
-points(pref5.5[thin.by,3], rhoTD5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
-points(pref5.5[thin.by,4], rhoTD5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
-points(pref5.5[thin.by,5], rhoTD5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
-points(pref5.5[thin.by,6], rhoTD5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-
-plot(rhoDT5.5[thin.by,2], rhoTD5.5[thin.by,2], xlim=c(log(10^-2.5), log(1)), ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-     xlab=expression(rho['D'%->%'T']), ylab=expression(rho['T'%->%'D']), las=1, cex.axis=1.5, 
-     cex.lab=1.5, col=post5.5colors[abs(round(ll5.5[thin.by,2]))])
-points(rhoDT5.5[thin.by,3], rhoTD5.5[thin.by,3], col=post5.5colors[abs(round(ll5.5[thin.by,3]))])
-points(rhoDT5.5[thin.by,4], rhoTD5.5[thin.by,4], col=post5.5colors[abs(round(ll5.5[thin.by,4]))])
-points(rhoDT5.5[thin.by,5], rhoTD5.5[thin.by,5], col=post5.5colors[abs(round(ll5.5[thin.by,5]))])
-points(rhoDT5.5[thin.by,6], rhoTD5.5[thin.by,6], col=post5.5colors[abs(round(ll5.5[thin.by,6]))])
-magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-
-dev.off()
-
+plot.param.corr(rhoTD1.9, rhoDT1.9, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll1.9, 10, 'Scenario 1')
+plot.param.corr(rhoTD3.7, rhoDT3.7, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll3.7, 10, 'Scenario 2')
+plot.param.corr(rhoTD5.5, rhoDT5.5, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll5.5, 10, 'Scenario 3')
+plot.param.corr(rhoTD7.3, rhoDT7.3, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
+plot.param.corr(rhoTD9.1, rhoDT9.1, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
 
 ## -----------------------------------------------------------------------------------
 ## 5. Meta-analysis empirical prevalence posteriors compared to model output prev
@@ -518,6 +433,37 @@ dev.off()
 # read in the data generated in the ticks.R script
 empirical<-read.csv('~/Dropbox/2014&Older/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
 ilogit = function(x) 1/{1+exp(-x)}
+prev.plot<-function(param.data, param.name, y.label, color, xmax=1, add.line=NULL, add.line.color=NULL){
+  hist.list<-list()
+  for(chain in 2:6){
+    hist.list[[chain-1]]<-hist((param.data[,chain]), plot=FALSE)
+  }
+  ymax=0
+  for(hist in 1:5){
+    if(max(hist.list[[hist]]$counts)>ymax){
+      ymax=max(hist.list[[hist]]$counts)
+    }
+  }
+  plot(hist.list[[1]]$mids, hist.list[[1]]$counts, type='l', xlim=c(0,xmax), ylim=c(0, ymax),
+       xlab=param.name, axes=FALSE, cex.lab=1.5, ylab='')
+  for(hist in 2:5){
+    polygon(x=c(min(hist.list[[hist]]$mids), hist.list[[hist]]$mids, max(hist.list[[hist]]$mids)),
+            y=c(0, hist.list[[hist]]$counts, 0), col=alpha(color, 0.25))
+  }
+  axis(side=1, cex.axis=1.5)
+  mtext(text=y.label, side=2, line=0.5, cex=1.5)
+  if(!is.null(add.line)){
+    abline(v=add.line, col=add.line.color, lty=2, lwd=3)
+  }
+  #return(hist.list)
+}
+  
+par(mfrow=c(1,1))
+prev.plot(ap1.9, 'Prevalence, Adult Ticks', 'Scenario 1', 'red', 0.1)
+prev.plot(ap3.7, 'Prevalence, Adult Ticks', 'Scenario 2', 'red', 0.1)
+prev.plot(ap5.5, 'Prevalence, Adult Ticks', 'Scenario 3', 'red', 0.1)
+prev.plot(ap7.3, 'Prevalence, Adult Ticks', 'Scenario 4', 'red', 0.1)
+prev.plot(ap9.1, 'Prevalence, Adult Ticks', 'Scenario 5', 'red', 0.1)
 
 # ticks
 ap1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/aPrev_burned_multi_chains.csv')
