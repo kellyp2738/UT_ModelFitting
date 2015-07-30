@@ -258,6 +258,67 @@ for(dir in dirs[4:5]){
 ## Decent evidence for convergence in 100/900, 300/700, and 500/500
 ## Will only consider scenarios where deer << alternative hosts (maybe universially true, esp. w/respect to counts of animals if not biomass)
 
+## overlay the chains (instead of printing each chain separately)
+for(dir in dirs[1:3]){
+  # change to appropriate directory
+  setwd('~/Desktop/MV_ConstantHostPop/')
+  setwd(file.path(getwd(), dir))
+  print(dir)
+  
+  # read data, select appropriate columns, exponentiate, and set column names
+  pref<-read.csv("preference_multi_chains.csv")
+  pref<-exp(pref[,2:length(pref[1,])])
+  names(pref)<-rep('pref', length(pref[1,]))
+  
+  rhoDT<-read.csv("rhoDT_multi_chains.csv")
+  rhoDT<-exp(rhoDT[,2:length(rhoDT[1,])])
+  names(rhoDT)<-rep('rhoDT', length(rhoDT[1,]))
+  
+  rhoTD<-read.csv("rhoTD_multi_chains.csv")
+  rhoTD<-exp(rhoTD[,2:length(rhoTD[1,])])
+  names(rhoTD)<-rep('rhoTD', length(rhoTD[1,]))
+  
+  # plot the chains
+  line.colors<-c('violetred3', 'salmon4', 'blue1', 'paleturquoise3', 'yellow3')
+  par(mar=c(4,4,4,2))
+  
+  ## preference ##
+  png(file=file.path('~/Desktop/MV_ConstantHostPop/',paste(dir,'Overlaid_Chains.png')), height=30, width=30, units='cm', res=300)
+  par(mfrow=c(3,1), mar=c(5,6,2,2))
+  #layout(matrix(c(1,2),1,2), widths=c(5,2))
+  plot(1:length(pref[,1]), pref[,1], type='l', col=line.colors[1], 
+       main='', ylim=c(0,1), xlab='Iteration', cex.lab=1.5, cex.axis=1.5,
+       ylab='', las=1)
+  mtext(expression(phi['D']), side=2, line=4, cex=1.5)
+  for(i in 2:length(pref[1,])){
+    lines(1:length(pref[,i]), pref[,i], col=line.colors[i])
+  }
+  abline(v=50000, lty=2, lwd=3)
+  abline(v=100000, lty=2, lwd=3)
+
+  plot(1:length(rhoTD[,1]), rhoTD[,1], type='l', col=line.colors[1], 
+       main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
+       xlab='Iteration',ylab='')
+  mtext(expression(rho['TD']), side=2, line=4, cex=1.5)
+  for(i in 2:length(rhoTD[1,])){
+    lines(1:length(rhoTD[,i]), rhoTD[,i], col=line.colors[i])
+  }
+  abline(v=50000, lty=2, lwd=3)
+  abline(v=100000, lty=2, lwd=3)
+
+  plot(1:length(rhoDT[,1]), rhoDT[,1], type='l', col=line.colors[1], 
+       main='', ylim=c(0,1), las=1, cex.lab=1.5, cex.axis=1.5,
+       xlab='Iteration',ylab='')
+  mtext(expression(rho['DT']), side=2, line=4, cex=1.5)
+  for(i in 2:length(rhoDT[1,])){
+    lines(1:length(rhoDT[,i]), rhoDT[,i], col=line.colors[i])
+  }
+  abline(v=50000, lty=2, lwd=3)
+  abline(v=100000, lty=2, lwd=3)
+
+  dev.off()
+}
+
 ## -----------------------------------------------------------------------------------
 ## 3. Look at marginal posterior probabilities for the estimated parameters
 ## -----------------------------------------------------------------------------------
@@ -308,7 +369,7 @@ post.plot<-function(param.data, param.name, y.label, color, add.line=NULL, add.l
   }
   plot(hist.list[[1]]$mids, hist.list[[1]]$counts, type='l', xlim=c(0,1), ylim=c(0, ymax),
        xlab=param.name, axes=FALSE, cex.lab=1.5, ylab='')
-  for(hist in 2:5){
+  for(hist in 1:5){
     polygon(x=c(min(hist.list[[hist]]$mids), hist.list[[hist]]$mids, max(hist.list[[hist]]$mids)),
             y=c(0, hist.list[[hist]]$counts, 0), col=alpha(color, 0.25))
   }
@@ -317,7 +378,7 @@ post.plot<-function(param.data, param.name, y.label, color, add.line=NULL, add.l
   if(!is.null(add.line)){
     abline(v=add.line, col=add.line.color, lty=2, lwd=3)
   }
-  return(hist.list)
+  #return(hist.list)
 }
 
 par(mfrow=c(3,5))
@@ -358,7 +419,80 @@ polygon(c(min(pref2.4.95.hist[,1]), pref2.4.95.hist[,1], max(pref2.4.95.hist[,1]
         c(0,pref2.4.95.hist[,2],0), col=alpha('darkolivegreen4', 0.5))
 abline(v=0.5, lty=2, lwd=3, col='red')
 
+# each param on a single graph, all scenarios
+get.hist.coords<-function(data.vector){
+  mids<-hist(data.vector, breaks=60, plot=FALSE)$mids
+  dens<-hist(data.vector, breaks=60, plot=FALSE)$density
+  coords<-cbind(mids, dens)
+  return(coords)
+}
 
+pref.list<-data.frame(cbind(exp(pref1.9[,2]), exp(pref3.7[,2]), exp(pref5.5[,2]), exp(pref7.3[,2])))
+rhoTD.list<-data.frame(cbind(exp(rhoTD1.9[,2]), exp(rhoTD3.7[,2]), exp(rhoTD5.5[,2]), exp(rhoTD7.3[,2])))
+rhoDT.list<-data.frame(cbind(exp(rhoDT1.9[,2]), exp(rhoDT3.7[,2]), exp(rhoDT5.5[,2]), exp(rhoDT7.3[,2])))
+
+scenario.colors<-c('#a1dab4', '#41b6c4', '#225ea8')
+
+png(file="~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/parameter_transitions_June2015.png", 
+    height=30, width=20, units='cm', res=300)
+par(mar=c(5,3,3,2), mfrow=c(3,1))
+plot(x=NULL, y=NULL, xlim=c(0,1), ylim=c(0,5), axes=FALSE, ylab="", xlab="")
+mtext(side=1, text=expression(phi['D']), line=3, cex=1.5)
+for(i in 1:3){
+  i.coords<-get.hist.coords(pref.list[,i])
+  #lines(i.coords[,1], i.coords[,2])
+  extra.points<-seq(0,1,0.001)
+  predict.posterior<-predict(loess(i.coords[,2]~i.coords[,1], span=0.25), 
+                    newdata=extra.points)
+  pos.posterior<-(predict.posterior + abs(predict.posterior))/2
+  p1<-cbind(extra.points, pos.posterior)
+  p2<-p1[complete.cases(p1),]
+  #print(head(p2))
+  p3<-rbind(c(abs(min(p2[,1])),0), abs(p2), c(max(p2[,1]), 0))
+  polygon(p3, col=alpha(scenario.colors[i], 0.5))
+}
+title('A', adj=0, cex.main=3)
+legend(x='topright', bty="n", legend=c('Scenario 1 (100:900)', 
+                             'Scenario 2 (300:700)', 
+                             'Scenario 3 (500:500)'), 
+       fill=alpha(scenario.colors, 0.25), cex=1.5)
+axis(side=1, cex.axis=1.5)
+plot(x=NULL, y=NULL, xlim=c(0,1), ylim=c(0,4), axes=FALSE, ylab="", xlab="")
+mtext(side=1, text=expression(rho['D'%->%'T']), line=3, cex=1.5)
+for(i in 1:3){
+  i.coords<-get.hist.coords(rhoTD.list[,i])
+  #lines(i.coords[,1], i.coords[,2])
+  extra.points<-seq(0,1,0.001)
+  predict.posterior<-predict(loess(i.coords[,2]~i.coords[,1], span=0.25), 
+                             newdata=extra.points)
+  pos.posterior<-(predict.posterior + abs(predict.posterior))/2
+  p1<-cbind(extra.points, pos.posterior)
+  p2<-p1[complete.cases(p1),]
+  #print(head(p2))
+  p3<-rbind(c(abs(min(p2[,1])),0), abs(p2), c(max(p2[,1]), 0))
+  polygon(p3, col=alpha(scenario.colors[i], 0.5))
+}
+title('B', adj=0, cex.main=3)
+abline(v=0.06, lty=2, lwd=3)
+axis(side=1, cex.axis=1.5)
+plot(x=NULL, y=NULL, xlim=c(0,1), ylim=c(0,170), axes=FALSE, ylab="", xlab="")
+mtext(side=1, text=expression(rho['T'%->%'D']), line=3, cex=1.5)
+for(i in 1:3){
+  i.coords<-get.hist.coords(rhoDT.list[,i])
+  #extra.points<-seq(0,1,0.001)
+  predict.posterior<-predict(loess(i.coords[,2]~i.coords[,1], span=0.25), 
+                             newdata=extra.points)
+  pos.posterior<-(predict.posterior + abs(predict.posterior))/2
+  p1<-cbind(extra.points, pos.posterior)
+  p2<-p1[complete.cases(p1),]
+  #print(head(p2))
+  p3<-rbind(c(abs(min(p2[,1])),0), abs(p2), c(max(p2[,1]), 0))
+  polygon(p3, col=alpha(scenario.colors[i], 0.5))
+}
+title('C', adj=0, cex.main=3)
+abline(v=0.26, lty=2, lwd=3)
+axis(side=1, cex.axis=1.5)
+dev.off()
 
 ## -----------------------------------------------------------------------------------
 ## 4. Look at parameter correlations in the different relative abundance scenarios by
@@ -377,9 +511,10 @@ ll5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/loglik_burned_multi_cha
 ll7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/loglik_burned_multi_chains.csv')
 ll9.1<-read.csv('~/Desktop/MV_ConstantHostPop/MV_900_100/loglik_burned_multi_chains.csv')
 
-png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_Legend.png', height=10, width=5, units='cm', res=300)
+png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_grayscale_Legend.png', height=10, width=5, units='cm', res=300)
 plot.new()
-legend_image <- as.raster(matrix(post5.5colors, ncol=1))
+post.colors<-colorRampPalette(c('gray20', 'gray90'))(length(1:max(abs(round(ll1.9[,2:length(ll1.9[1,])])))))
+legend_image <- as.raster(matrix(post.colors, ncol=1))
 rasterImage(legend_image, 0, 0, 1,1)
 mtext(text = c('poor'), side=2, line=0, at=c(0), las=1, cex=1.5)
 mtext(text = c('good'), side=2, line=0, at=c(1), las=1, cex=1.5)
@@ -387,44 +522,79 @@ mtext(text = c('Model Fit'), side=2, line=2, cex=1.5)
 dev.off()
 
 #png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_May2015.png', height=30, width=30, units='cm', res=300)
+png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Multivariate_Metropolis_ExpPairs_Colored_June2015.png', height=30, width=30, units='cm', res=300)
 #par(mfrow=c(3,3), mar=c(5,7,2,2))
 
 plot.param.corr<-function(param.data.1, param.data.2, 
-                          param.1.name, param.2.name, 
-                          lik.data, thin.by, y.label){
-  par(mar=c(6,8,2,2))
+                          param.1.name, param.2.name,
+                          lik.data, thin.by, y.label, 
+                          incl.axis1=TRUE, incl.axis2=TRUE, alpha.lvl=1){
+  #par(mar=c(6,8,2,2))
   thin.by.idx<-seq(1, 100001, thin.by)
-  post.colors<-colorRampPalette(c('gray20', 'yellow'))(length(1:max(abs(round(lik.data[,2:length(lik.data)])))))
+  # color ramp was originally gray20 to yellow
+  post.colors<-colorRampPalette(c('gray20', 'gray90'))(length(1:max(abs(round(lik.data[,2:length(lik.data)])))))
   plot(param.data.1[thin.by.idx,2], param.data.2[thin.by.idx,2], xlim=c(log(10^-2.5), log(1)), 
-       ylim=c(log(10^-2.5), log(1)), axes=FALSE,
-       xlab=param.1.name, ylab=param.2.name, las=1, cex.axis=1.5, 
-       cex.lab=1.5, col=post.colors[abs(round(lik.data[thin.by.idx,2]))])
+       ylim=c(log(10^-2.5), log(1)), axes=FALSE, pch=16,
+       xlab='', ylab=param.2.name, las=1, cex.axis=1.5, 
+       cex.lab=1.5, col=alpha(post.colors[abs(round(lik.data[thin.by.idx,2]))], alpha.lvl))
+  mtext(side=1, text=param.1.name, line=2)
   for(chain in 3:6){
-    points(param.data.1[thin.by.idx,chain], param.data.2[thin.by.idx,chain],
-           col=post.colors[abs(round(lik.data[thin.by.idx,chain]))])
+    points(param.data.1[thin.by.idx,chain], param.data.2[thin.by.idx,chain], pch=16,
+           col=alpha(post.colors[abs(round(lik.data[thin.by.idx,chain]))], alpha.lvl))
   }
-  magaxis(side=c(1,2), las=1, cex.axis=1.5, unlog=TRUE)
-  mtext(side=2, text=y.label, cex=1.3, line=5)
+  if(incl.axis1==TRUE){
+    magaxis(side=c(1), las=1, cex.axis=1.5, unlog=TRUE)
+  }
+  if(incl.axis2==TRUE){
+    magaxis(side=c(2), las=1, cex.axis=1.5, unlog=TRUE)
+  }
+  mtext(side=2, text=y.label, cex=1.3, line=4.2)
 }
 
-par(mfrow=c(3,5))
-plot.param.corr(pref1.9, rhoDT1.9, expression(phi['D']), expression(rho['T'%->%'D']), ll1.9, 10, 'Scenario 1')
-plot.param.corr(pref3.7, rhoDT3.7, expression(phi['D']), expression(rho['T'%->%'D']), ll3.7, 10, 'Scenario 2')
-plot.param.corr(pref5.5, rhoDT5.5, expression(phi['D']), expression(rho['T'%->%'D']), ll5.5, 10, 'Scenario 3')
-plot.param.corr(pref7.3, rhoDT7.3, expression(phi['D']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
-plot.param.corr(pref9.1, rhoDT9.1, expression(phi['D']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
+par(mfcol=c(3,3))
+par(mar=c(3,6,0.5,0.5))
+plot.param.corr(pref1.9, rhoDT1.9, '', expression(rho['T'%->%'D']), 
+                ll1.9, 10, 'Scenario 1', incl.axis1=FALSE, incl.axis2=TRUE)
+plot.param.corr(pref3.7, rhoDT3.7, '', expression(rho['T'%->%'D']), 
+                ll3.7, 10, 'Scenario 2', incl.axis1=FALSE)
+plot.param.corr(pref5.5, rhoDT5.5, expression(phi['D']), expression(rho['T'%->%'D']), 
+                ll5.5, 10, 'Scenario 3')
+#plot.param.corr(pref7.3, rhoDT7.3, expression(phi['D']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
+#plot.param.corr(pref9.1, rhoDT9.1, expression(phi['D']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
 
-plot.param.corr(pref1.9, rhoTD1.9, expression(phi['D']), expression(rho['D'%->%'T']), ll1.9, 10, 'Scenario 1')
-plot.param.corr(pref3.7, rhoTD3.7, expression(phi['D']), expression(rho['D'%->%'T']), ll3.7, 10, 'Scenario 2')
-plot.param.corr(pref5.5, rhoTD5.5, expression(phi['D']), expression(rho['D'%->%'T']), ll5.5, 10, 'Scenario 3')
-plot.param.corr(pref7.3, rhoTD7.3, expression(phi['D']), expression(rho['D'%->%'T']), ll7.3, 10, 'Scenario 4')
-plot.param.corr(pref9.1, rhoTD9.1, expression(phi['D']), expression(rho['D'%->%'T']), ll9.1, 10, 'Scenario 5')
+plot.param.corr(pref1.9, rhoTD1.9, '', expression(rho['D'%->%'T']), 
+                ll1.9, 10, '', incl.axis1=FALSE)
+plot.param.corr(pref3.7, rhoTD3.7, '', expression(rho['D'%->%'T']), 
+                ll3.7, 10, '', incl.axis1=FALSE)
+plot.param.corr(pref5.5, rhoTD5.5, expression(phi['D']), expression(rho['D'%->%'T']), 
+                ll5.5, 10, '')
+#plot.param.corr(pref7.3, rhoTD7.3, expression(phi['D']), expression(rho['D'%->%'T']), ll7.3, 10, 'Scenario 4')
+#plot.param.corr(pref9.1, rhoTD9.1, expression(phi['D']), expression(rho['D'%->%'T']), ll9.1, 10, 'Scenario 5')
 
-plot.param.corr(rhoTD1.9, rhoDT1.9, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll1.9, 10, 'Scenario 1')
-plot.param.corr(rhoTD3.7, rhoDT3.7, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll3.7, 10, 'Scenario 2')
-plot.param.corr(rhoTD5.5, rhoDT5.5, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll5.5, 10, 'Scenario 3')
-plot.param.corr(rhoTD7.3, rhoDT7.3, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
-plot.param.corr(rhoTD9.1, rhoDT9.1, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
+plot.param.corr(rhoTD1.9, rhoDT1.9, '', expression(rho['T'%->%'D']), 
+                ll1.9, 10, '', incl.axis1=FALSE)
+plot.param.corr(rhoTD3.7, rhoDT3.7, '', expression(rho['T'%->%'D']), 
+                ll3.7, 10, '', incl.axis1=FALSE)
+plot.param.corr(rhoTD5.5, rhoDT5.5, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), 
+                ll5.5, 10, '')
+#plot.param.corr(rhoTD7.3, rhoDT7.3, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll7.3, 10, 'Scenario 4')
+#plot.param.corr(rhoTD9.1, rhoDT9.1, expression(rho['D'%->%'T']), expression(rho['T'%->%'D']), ll9.1, 10, 'Scenario 5')
+
+dev.off()
+
+thin.by.idx<-seq(1, 100001, 10)
+cor(pref1.9[thin.by.idx,2], rhoDT1.9[thin.by.idx,2])
+cor(pref1.9[thin.by.idx,2], rhoTD1.9[thin.by.idx,2])
+cor(rhoTD1.9[thin.by.idx,2], rhoDT1.9[thin.by.idx,2])
+
+cor(pref3.7[thin.by.idx,2], rhoDT3.7[thin.by.idx,2])
+cor(pref3.7[thin.by.idx,2], rhoTD3.7[thin.by.idx,2])
+cor(rhoTD3.7[thin.by.idx,2], rhoDT3.7[thin.by.idx,2])
+
+cor(pref5.5[thin.by.idx,2], rhoDT5.5[thin.by.idx,2])
+cor(pref5.5[thin.by.idx,2], rhoTD5.5[thin.by.idx,2])
+cor(rhoTD5.5[thin.by.idx,2], rhoDT5.5[thin.by.idx,2])
+
 
 ## -----------------------------------------------------------------------------------
 ## 5. Meta-analysis empirical prevalence posteriors compared to model output prev
@@ -433,187 +603,105 @@ plot.param.corr(rhoTD9.1, rhoDT9.1, expression(rho['D'%->%'T']), expression(rho[
 # read in the data generated in the ticks.R script
 empirical<-read.csv('~/Dropbox/2014&Older/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
 ilogit = function(x) 1/{1+exp(-x)}
-prev.plot<-function(param.data, param.name, y.label, color, xmax=1, add.line=NULL, add.line.color=NULL){
+
+# modification of post.plot for prevalence data
+prev.plot<-function(param.data, param.name, y.label, color, empirical, 
+                    xmax=1, alpha.lvl=0.1, add.line=NULL, add.line.color=NULL){
   hist.list<-list()
-  for(chain in 2:6){
-    hist.list[[chain-1]]<-hist((param.data[,chain]), plot=FALSE)
+  for(chain in 1:length(param.data)){
+    hist.list[[chain]]<-hist((param.data[,chain]), plot=FALSE)
   }
+  hist.list[[length(param.data)+1]]<-hist(empirical, plot=FALSE)
   ymax=0
-  for(hist in 1:5){
-    if(max(hist.list[[hist]]$counts)>ymax){
-      ymax=max(hist.list[[hist]]$counts)
+  for(hist in 1:length(hist.list)){
+    if(max(hist.list[[hist]]$density)>ymax){
+      ymax=max(hist.list[[hist]]$density)
     }
   }
-  plot(hist.list[[1]]$mids, hist.list[[1]]$counts, type='l', xlim=c(0,xmax), ylim=c(0, ymax),
-       xlab=param.name, axes=FALSE, cex.lab=1.5, ylab='')
-  for(hist in 2:5){
+  plot(hist.list[[1]]$mids, hist.list[[1]]$density, type='l', xlim=c(0,xmax), ylim=c(0, ymax),
+       xlab=param.name, axes=FALSE, cex.lab=2, cex.axis=2, ylab='')
+  for(hist in 1:length(hist.list)){
     polygon(x=c(min(hist.list[[hist]]$mids), hist.list[[hist]]$mids, max(hist.list[[hist]]$mids)),
-            y=c(0, hist.list[[hist]]$counts, 0), col=alpha(color, 0.25))
+            y=c(0, hist.list[[hist]]$density, 0), col=alpha(color, alpha.lvl))
   }
-  axis(side=1, cex.axis=1.5)
-  mtext(text=y.label, side=2, line=0.5, cex=1.5)
+  axis(side=1, cex.axis=2, cex.lab=2)
+  mtext(text=y.label, side=2, line=0.5, cex=2)
   if(!is.null(add.line)){
     abline(v=add.line, col=add.line.color, lty=2, lwd=3)
   }
   #return(hist.list)
 }
-  
-par(mfrow=c(1,1))
-prev.plot(ap1.9, 'Prevalence, Adult Ticks', 'Scenario 1', 'red', 0.1)
-prev.plot(ap3.7, 'Prevalence, Adult Ticks', 'Scenario 2', 'red', 0.1)
-prev.plot(ap5.5, 'Prevalence, Adult Ticks', 'Scenario 3', 'red', 0.1)
-prev.plot(ap7.3, 'Prevalence, Adult Ticks', 'Scenario 4', 'red', 0.1)
-prev.plot(ap9.1, 'Prevalence, Adult Ticks', 'Scenario 5', 'red', 0.1)
-
-# ticks
+ 
+# ticks # original color in dissertation: violetred3
 ap1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/aPrev_burned_multi_chains.csv')
-ap1.9.hist1<-hist(ap1.9[,2], breaks=25, plot=FALSE)
-ap1.9.hist2<-hist(ap1.9[,3], breaks=25, plot=FALSE)
-ap1.9.hist3<-hist(ap1.9[,4], breaks=25, plot=FALSE)
-ap1.9.hist4<-hist(ap1.9[,5], breaks=25, plot=FALSE)
-
 ap3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/aPrev_burned_multi_chains.csv')
-ap3.7.hist1<-hist(ap3.7[,2], breaks=25, plot=FALSE)
-ap3.7.hist2<-hist(ap3.7[,3], breaks=25, plot=FALSE)
-ap3.7.hist3<-hist(ap3.7[,4], breaks=25, plot=FALSE)
-ap3.7.hist4<-hist(ap3.7[,5], breaks=25, plot=FALSE)
-ap3.7.hist5<-hist(ap3.7[,6], breaks=25, plot=FALSE)
-
 ap5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/aPrev_burned_multi_chains.csv')
-ap5.5.hist1<-hist(ap5.5[,2], breaks=25, plot=FALSE)
-ap5.5.hist2<-hist(ap5.5[,3], breaks=25, plot=FALSE)
-ap5.5.hist3<-hist(ap5.5[,4], breaks=25, plot=FALSE)
-ap5.5.hist4<-hist(ap5.5[,5], breaks=25, plot=FALSE)
-ap5.5.hist5<-hist(ap5.5[,6], breaks=25, plot=FALSE)
+#ap7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/aPrev_burned_multi_chains.csv')
+#ap9.1<-read.csv('~/Desktop/MV_ConstantHostPop/MV_900_100/aPrev_burned_multi_chains.csv')
+empirical.ap<-ilogit(empirical[,2])
 
-empirical.ap.hist<-hist(ilogit(empirical[,2]), breaks=25, plot=FALSE)
+par(mfrow=c(1,1))
+prev.plot(ap1.9[,-1], 'Prevalence, Adult Ticks', 'Scenario 1', 'red', empirical.ap, 0.1)
+prev.plot(ap3.7[,-1], 'Prevalence, Adult Ticks', 'Scenario 2', 'red', empirical.ap, 0.1)
+prev.plot(ap5.5[,-1], 'Prevalence, Adult Ticks', 'Scenario 3', 'red', empirical.ap, 0.1)
+#prev.plot(ap7.3, 'Prevalence, Adult Ticks', 'Scenario 4', 'red', empirical.ap, 0.1)
+#prev.plot(ap9.1, 'Prevalence, Adult Ticks', 'Scenario 5', 'red', empirical.ap, 0.1)
 
-# deer
+ap.all<-data.frame(cbind(ap1.9[,2], ap3.7[,2], ap5.5[,2]))
+prev.plot(ap.all, 'Prevalence, Adult Ticks', '', '#ef8a62', empirical.ap, 0.1, 0.5)
+
+# deer # original color in dissertation: blue1
 dp1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/dPrev_burned_multi_chains.csv')
-dp1.9.hist1<-hist(dp1.9[,2], breaks=25, plot=FALSE)
-dp1.9.hist2<-hist(dp1.9[,3], breaks=25, plot=FALSE)
-dp1.9.hist3<-hist(dp1.9[,4], breaks=25, plot=FALSE)
-dp1.9.hist4<-hist(dp1.9[,5], breaks=25, plot=FALSE)
-dp1.9.hist5<-hist(dp1.9[,6], breaks=25, plot=FALSE)
-
 dp3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/dPrev_burned_multi_chains.csv')
-dp3.7.hist1<-hist(dp3.7[,2], breaks=25, plot=FALSE)
-dp3.7.hist2<-hist(dp3.7[,3], breaks=25, plot=FALSE)
-dp3.7.hist3<-hist(dp3.7[,4], breaks=25, plot=FALSE)
-dp3.7.hist4<-hist(dp3.7[,5], breaks=25, plot=FALSE)
-dp3.7.hist5<-hist(dp3.7[,6], breaks=25, plot=FALSE)
-
 dp5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/dPrev_burned_multi_chains.csv')
-dp5.5.hist1<-hist(dp5.5[,2], breaks=25, plot=FALSE)
-dp5.5.hist2<-hist(dp5.5[,3], breaks=25, plot=FALSE)
-dp5.5.hist3<-hist(dp5.5[,4], breaks=25, plot=FALSE)
-dp5.5.hist4<-hist(dp5.5[,5], breaks=25, plot=FALSE)
-dp5.5.hist5<-hist(dp5.5[,6], breaks=25, plot=FALSE)
+#dp7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/dPrev_burned_multi_chains.csv')
+#dp9.1<-read.csv('~/Desktop/MV_ConstantHostPop/MV_900_100/dPrev_burned_multi_chains.csv')
+empirical.dp<-ilogit(empirical[,3])
 
-empirical.dp.hist<-hist(ilogit(empirical[,3]), breaks=25, plot=FALSE)
-#ymax.d<-max(c(dp1.9.hist$density, dp3.7hist$density, dp5.5.hist$density, empirical.dp.hist$density))
-ymax.d<-max(c(dp1.9.hist1$density, dp1.9.hist2$density, dp1.9.hist3$density, dp1.9.hist4$density, dp1.9.hist5$density, 
-                dp3.7.hist1$density, dp3.7.hist2$density, dp3.7.hist3$density, dp3.7.hist4$density, dp3.7.hist5$density, 
-                dp5.5.hist1$density, dp5.5.hist2$density, dp5.5.hist3$density, dp5.5.hist4$density, dp5.5.hist5$density,
-                empirical.dp.hist$density))
+par(mfrow=c(1,1))
+prev.plot(dp1.9[,-1], 'Prevalence, Deer', 'Scenario 1', 'blue', empirical.dp)
+prev.plot(dp3.7[,-1], 'Prevalence, Deer', 'Scenario 2', 'blue', empirical.dp)
+prev.plot(dp5.5[,-1], 'Prevalence, Deer', 'Scenario 3', 'blue', empirical.dp)
+#prev.plot(dp7.3, 'Prevalence, Deer', 'Scenario 4', 'blue', empirical.dp)
+#prev.plot(dp9.1, 'Prevalence, Deer', 'Scenario 5', 'blue', empirical.dp)
 
-# deer AB
+deer.all<-data.frame(cbind(dp1.9[,2], dp3.7[,2], dp5.5[,2]))
+prev.plot(deer.all, 'Prevalence, Deer', '', '#67a9cf', empirical.dp, 1, 0.5)
+
+# deer AB # original color in dissertation: yellow3
 dabp1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/dABprev_burned_multi_chains.csv')
-dabp1.9.hist1<-hist(dabp1.9[,2], breaks=25, plot=FALSE)
-dabp1.9.hist2<-hist(dabp1.9[,3], breaks=25, plot=FALSE)
-dabp1.9.hist3<-hist(dabp1.9[,4], breaks=25, plot=FALSE)
-dabp1.9.hist4<-hist(dabp1.9[,5], breaks=25, plot=FALSE)
-dabp1.9.hist5<-hist(dabp1.9[,6], breaks=25, plot=FALSE)
-
 dabp3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/dABPrev_burned_multi_chains.csv')
-dabp3.7.hist1<-hist(dabp3.7[,2], breaks=25, plot=FALSE)
-dabp3.7.hist2<-hist(dabp3.7[,3], breaks=25, plot=FALSE)
-dabp3.7.hist3<-hist(dabp3.7[,4], breaks=25, plot=FALSE)
-dabp3.7.hist4<-hist(dabp3.7[,5], breaks=25, plot=FALSE)
-dabp3.7.hist5<-hist(dabp3.7[,6], breaks=25, plot=FALSE)
-
 dabp5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/dABPrev_burned_multi_chains.csv')
-dabp5.5.hist1<-hist(dabp5.5[,2], breaks=25, plot=FALSE)
-dabp5.5.hist2<-hist(dabp5.5[,3], breaks=25, plot=FALSE)
-dabp5.5.hist3<-hist(dabp5.5[,4], breaks=25, plot=FALSE)
-dabp5.5.hist4<-hist(dabp5.5[,5], breaks=25, plot=FALSE)
-dabp5.5.hist5<-hist(dabp5.5[,6], breaks=25, plot=FALSE)
+#dabp7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/dABprev_burned_multi_chains.csv')
+#dabp9.1<-read.csv('~/Desktop/MV_ConstantHostPop/MV_900_100/dABprev_burned_multi_chains.csv')
+empirical.dabp<-ilogit(empirical[,4])
 
-empirical.dabp.hist<-hist(ilogit(empirical[,4]), breaks=25, plot=FALSE)
-ymax.dab<-max(c(dabp1.9.hist1$density, dabp1.9.hist2$density, dabp1.9.hist3$density, dabp1.9.hist4$density, dabp1.9.hist5$density, 
-                dabp3.7.hist1$density, dabp3.7.hist2$density, dabp3.7.hist3$density, dabp3.7.hist4$density, dabp3.7.hist5$density, 
-                dabp5.5.hist1$density, dabp5.5.hist2$density, dabp5.5.hist3$density, dabp5.5.hist4$density, dabp5.5.hist5$density,
-                empirical.dabp.hist$density))
+par(mfrow=c(1,1))
+prev.plot(dabp1.9, 'Antibody Prevalence, Deer', 'Scenario 1', 'green', empirical.dabp)
+prev.plot(dabp3.7, 'Antibody Prevalence, Deer', 'Scenario 2', 'green', empirical.dabp)
+prev.plot(dabp5.5, 'Antibody Prevalence, Deer', 'Scenario 3', 'green', empirical.dabp)
+#prev.plot(dabp7.3, 'Antibody Prevalence, Deer', 'Scenario 4', 'green', empirical.dabp)
+#prev.plot(dabp9.1, 'Antibody Prevalence, Deer', 'Scenario 5', 'green', empirical.dabp)
 
-png(file='~/Desktop/Multivar_Metropolis_Prevalence_Comparison.png', height=10, width=30, units='cm', res=300)
+deer.ab.all<-data.frame(cbind(dabp1.9[,2], dabp3.7[,2], dabp5.5[,2]))
+prev.plot(deer.ab.all, 'Antibody Prevalence, Deer', '', '#ffffbf', empirical.dabp, 1, 0.5)
+
+#png(file='~/Desktop/Multivar_Metropolis_Prevalence_Comparison.png', height=10, width=30, units='cm', res=300)
+png(file='~/Dropbox/2014&Older/ModelFitting/FutureProof/Figures for Presentations/Multivar_Metropolis_Prevalence_Comparison_RevJune2015.png', height=10, width=30, units='cm', res=300)
 par(mfrow=c(1,3), mar=c(8,2,4,2))
-plot(empirical.ap.hist$mids, empirical.ap.hist$density, type='l', ylim=c(0,250),
-     axes=FALSE, xlab='', ylab='', las=1, xlim=c(0,0.04))
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Infection \nAdult Ticks', side=1, line=6, cex=1.5)
-polygon(empirical.ap.hist$mids, empirical.ap.hist$density, col=alpha('violetred3',0.25))
-polygon(ap1.9.hist1$mids, ap1.9.hist1$density, col=alpha('violetred3',0.1))
-polygon(ap1.9.hist2$mids, ap1.9.hist2$density, col=alpha('violetred3',0.1))
-polygon(ap1.9.hist3$mids, ap1.9.hist3$density, col=alpha('violetred3',0.1))
-polygon(ap1.9.hist4$mids, ap1.9.hist4$density, col=alpha('violetred3',0.1))
-polygon(ap3.7.hist1$mids, ap3.7.hist1$density, col=alpha('violetred3',0.1))
-polygon(ap3.7.hist2$mids, ap3.7.hist2$density, col=alpha('violetred3',0.1))
-polygon(ap3.7.hist3$mids, ap3.7.hist3$density, col=alpha('violetred3',0.1))
-polygon(ap3.7.hist4$mids, ap3.7.hist4$density, col=alpha('violetred3',0.1))
-polygon(ap3.7.hist5$mids, ap3.7.hist5$density, col=alpha('violetred3',0.1))
-polygon(ap5.5.hist1$mids, ap5.5.hist1$density, col=alpha('violetred3',0.1))
-polygon(ap5.5.hist2$mids, ap5.5.hist2$density, col=alpha('violetred3',0.1))
-polygon(ap5.5.hist3$mids, ap5.5.hist3$density, col=alpha('violetred3',0.1))
-polygon(ap5.5.hist4$mids, ap5.5.hist4$density, col=alpha('violetred3',0.1))
-polygon(ap5.5.hist5$mids, ap5.5.hist5$density, col=alpha('violetred3',0.1))
+
+# alt color #ef8a62
+prev.plot(ap.all, '', '', 'violetred3', empirical.ap, 0.1, 0.5)
 title('A', adj=0, cex.main=3)
-
-plot(c(min(empirical.dp.hist$mids), empirical.dp.hist$mids, max(empirical.dp.hist$mids)), 
-     c(0,empirical.dp.hist$density,0), ylim=c(0,ymax.d), type='l', xlim=c(0,1),
-     axes=FALSE, xlab='', ylab='', las=1)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Infection \nWhite-tailed Deer', side=1, line=6, cex=1.5)
-polygon(c(min(empirical.dp.hist$mids), empirical.dp.hist$mids, max(empirical.dp.hist$mids)), c(0,empirical.dp.hist$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp1.9.hist1$mids),dp1.9.hist1$mids, max(dp1.9.hist1$mids)), c(0,dp1.9.hist1$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp1.9.hist2$mids),dp1.9.hist2$mids, max(dp1.9.hist2$mids)), c(0,dp1.9.hist2$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp1.9.hist3$mids),dp1.9.hist3$mids, max(dp1.9.hist3$mids)), c(0,dp1.9.hist3$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp1.9.hist4$mids),dp1.9.hist4$mids, max(dp1.9.hist4$mids)), c(0,dp1.9.hist4$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp1.9.hist5$mids),dp1.9.hist5$mids, max(dp1.9.hist5$mids)), c(0,dp1.9.hist5$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp3.7.hist1$mids),dp3.7.hist1$mids, max(dp3.7.hist1$mids)), c(0,dp3.7.hist1$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp3.7.hist2$mids),dp3.7.hist2$mids, max(dp3.7.hist2$mids)), c(0,dp3.7.hist2$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp3.7.hist3$mids),dp3.7.hist3$mids, max(dp3.7.hist3$mids)), c(0,dp3.7.hist3$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp3.7.hist4$mids),dp3.7.hist4$mids, max(dp3.7.hist4$mids)), c(0,dp3.7.hist4$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp3.7.hist5$mids),dp3.7.hist5$mids, max(dp3.7.hist5$mids)), c(0,dp3.7.hist5$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp5.5.hist1$mids),dp5.5.hist1$mids, max(dp5.5.hist1$mids)), c(0,dp5.5.hist1$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp5.5.hist2$mids),dp5.5.hist2$mids, max(dp5.5.hist2$mids)), c(0,dp5.5.hist2$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp5.5.hist3$mids),dp5.5.hist3$mids, max(dp5.5.hist3$mids)), c(0,dp5.5.hist3$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp5.5.hist4$mids),dp5.5.hist4$mids, max(dp5.5.hist4$mids)), c(0,dp5.5.hist4$density,0), col=alpha('blue1',0.25))
-polygon(c(min(dp5.5.hist5$mids),dp5.5.hist5$mids, max(dp5.5.hist5$mids)), c(0,dp5.5.hist5$density,0), col=alpha('blue1',0.25))
+mtext(side=1, text='Fraction Adult\nTicks Infected', line=5.5, cex=1.5)
+# alt color #67a9cf
+prev.plot(deer.all, '', '', 'blue1', empirical.dp, 1, 0.5)
 title('B', adj=0, cex.main=3)
-
-#par(mfrow=c(1,1))
-plot(c(min(empirical.dabp.hist$mids), empirical.dabp.hist$mids, max(empirical.dabp.hist$mids)), 
-     c(0,empirical.dabp.hist$density,0), ylim=c(0,ymax.dab), type='l', xlim=c(0,1),
-     axes=FALSE, xlab='', ylab='', las=1)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Seroprevalence \nWhite-tailed Deer', side=1, line=6, cex=1.5)
-polygon(c(min(empirical.dabp.hist$mids), empirical.dabp.hist$mids, max(empirical.dabp.hist$mids)), c(0,empirical.dabp.hist$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp1.9.hist1$mids),dabp1.9.hist1$mids, max(dabp1.9.hist1$mids)), c(0,dabp1.9.hist1$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp1.9.hist2$mids),dabp1.9.hist2$mids, max(dabp1.9.hist2$mids)), c(0,dabp1.9.hist2$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp1.9.hist3$mids),dabp1.9.hist3$mids, max(dabp1.9.hist3$mids)), c(0,dabp1.9.hist3$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp1.9.hist4$mids),dabp1.9.hist4$mids, max(dabp1.9.hist4$mids)), c(0,dabp1.9.hist4$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp1.9.hist5$mids),dabp1.9.hist5$mids, max(dabp1.9.hist5$mids)), c(0,dabp1.9.hist5$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp3.7.hist1$mids),dabp3.7.hist1$mids, max(dabp3.7.hist1$mids)), c(0,dabp3.7.hist1$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp3.7.hist2$mids),dabp3.7.hist2$mids, max(dabp3.7.hist2$mids)), c(0,dabp3.7.hist2$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp3.7.hist3$mids),dabp3.7.hist3$mids, max(dabp3.7.hist3$mids)), c(0,dabp3.7.hist3$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp3.7.hist4$mids),dabp3.7.hist4$mids, max(dabp3.7.hist4$mids)), c(0,dabp3.7.hist4$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp3.7.hist5$mids),dabp3.7.hist5$mids, max(dabp3.7.hist5$mids)), c(0,dabp3.7.hist5$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp5.5.hist1$mids),dabp5.5.hist1$mids, max(dabp5.5.hist1$mids)), c(0,dabp5.5.hist1$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp5.5.hist2$mids),dabp5.5.hist2$mids, max(dabp5.5.hist2$mids)), c(0,dabp5.5.hist2$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp5.5.hist3$mids),dabp5.5.hist3$mids, max(dabp5.5.hist3$mids)), c(0,dabp5.5.hist3$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp5.5.hist4$mids),dabp5.5.hist4$mids, max(dabp5.5.hist4$mids)), c(0,dabp5.5.hist4$density,0), col=alpha('yellow3',0.25))
-polygon(c(min(dabp5.5.hist5$mids),dabp5.5.hist5$mids, max(dabp5.5.hist5$mids)), c(0,dabp5.5.hist5$density,0), col=alpha('yellow3',0.25))
+mtext(side=1, text='Fraction White-Tailed\nDeer Infected', line=5.5, cex=1.5)
+# alt color #ffffbf
+prev.plot(deer.ab.all, '', '', 'yellow3', empirical.dabp, 1, 0.5)
 title('C', adj=0, cex.main=3)
+mtext(side=1, text='Fraction White-Tailed\nDeer Seropositive', line=5.5, cex=1.5)
 
 dev.off()
 
@@ -621,7 +709,7 @@ dev.off()
 ## 6. Meta-analysis distributions w/original empirical data
 ## -----------------------------------------------------------------------------------
 
-ticks = read.csv("~/Dropbox/ModelFitting/FutureProof/CompletePrevsFixed_2.csv", header=FALSE)
+ticks = read.csv("~/Dropbox/2014&Older/ModelFitting/FutureProof/CompletePrevsFixed_2.csv", header=FALSE)
 names(ticks) = c("species", "ncases", "ntrials")
 ticks = ticks[order(ticks$species),]
 
@@ -630,8 +718,9 @@ names(tick.prev)<-c('species', 'ncases', 'ntrials', 'prev')
 
 ilogit = function(x) 1/{1+exp(-x)}
 line.colors<-c('violetred3', 'salmon4', 'blue1', 'paleturquoise3', 'yellow3')
+#line.colors<-c('#ef8a62', '#67a9cf', '#ffffbf')
 
-empirical<-read.csv('~/Dropbox/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
+empirical<-read.csv('~/Dropbox/2014&Older/ModelFitting/FutureProof/TickPrevGLMM_MetaAnalysis_NoRacc_Results_LogitTransform.csv')
 empirical.ap.hist<-hist(ilogit(empirical[,2]), breaks=40, plot=FALSE)
 empirical.dp.hist<-hist(ilogit(empirical[,3]), breaks=30, plot=FALSE)
 empirical.dabp.hist<-hist(ilogit(empirical[,4]), breaks=28, plot=FALSE)
@@ -648,246 +737,182 @@ dabp.95<-quantile(ilogit(empirical[,4]), probs=c(0.025, 0.975))
 dabp.hist.data<-cbind(empirical.dabp.hist$mids, empirical.dabp.hist$density)
 dabp.hist.data.95<-subset(dabp.hist.data, dabp.hist.data[,1] > dabp.95[1] & dabp.hist.data[,1] < dabp.95[2])
 
-png(file='~/Desktop/EmpiricalPrev_Posterior_wRug.png', height=10, width=30, res=300, units='cm')
-par(mfrow=c(1,3), mar=c(8,2,4,2))
-plot(empirical.ap.hist$mids, empirical.ap.hist$density, type='l', 
-     xlim=c(0, max(subset(tick.prev, species=='adult')$prev)+.05),
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2,
-     axes=FALSE)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Infection \nAdult Ticks', side=1, line=6, cex=1.5)
-polygon(c(min(empirical.ap.hist$mids),empirical.ap.hist$mids,max(empirical.ap.hist$mids)), 
-        c(0,empirical.ap.hist$density,0), col=alpha('violetred3', 0.5))
-polygon(c(min(ap.hist.data.95[,1]),ap.hist.data.95[,1],max(ap.hist.data.95[,1])), 
-        c(0,ap.hist.data.95[,2],0), col=alpha('violetred3', 0.5))
-rug(subset(tick.prev, species=='adult')$prev, ticksize=0.03, lwd=2.5, col='red')
-title('A', adj=0, cex.main=3)
-
-plot(empirical.dp.hist$mids, empirical.dp.hist$density, type='l', axes=FALSE, xlim=c(0,1),
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Infection \nWhite-tailed Deer', side=1, line=6, cex=1.5)
-polygon(c(0,empirical.dp.hist$mids), c(0,empirical.dp.hist$density), col=alpha('blue1', 0.5))
-polygon(c(min(dp.hist.data.95[,1]),dp.hist.data.95[,1],max(dp.hist.data.95[,1])), 
-        c(0,dp.hist.data.95[,2],0), col=alpha('blue1', 0.5))
-rug(subset(tick.prev, species=='deer')$prev, ticksize=0.03, lwd=2.5, col='red')
-title('B', adj=0, cex.main=3)
-
-plot(empirical.dabp.hist$mids, empirical.dabp.hist$density, type='l', xlim=c(0,1),axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='% Seroprevalence \nWhite-tailed Deer', side=1, line=6, cex=1.5)
-polygon(c(min(empirical.dabp.hist$mids), empirical.dabp.hist$mids, max(empirical.dabp.hist$mids)), 
-        c(0,empirical.dabp.hist$density,0), col=alpha('yellow3', 0.5))
-polygon(c(min(dabp.hist.data.95[,1]),dabp.hist.data.95[,1],max(dabp.hist.data.95[,1])), 
-        c(0,dabp.hist.data.95[,2],0), col=alpha('yellow3', 0.5))
-rug(subset(tick.prev, species=='deerAB')$prev, ticksize=0.03, lwd=2.5, col='red')
-title('C', adj=0, cex.main=3)
-
-dev.off()
+#png(file='~/Desktop/EmpiricalPrev_Posterior_wRug.png', height=10, width=30, res=300, units='cm')
 
 ## -------------------------------------------------------------------------------------
 ## 7. Tick Burdens
 ## -------------------------------------------------------------------------------------
 
-setwd('~/Desktop/')
-#data.2.2<-read.csv('Multivar_Metropolis_200D_200R/Run1_200D_200R/1 MCMC Accepted Iteration Log 2014-10-11 17-46 839.csv')
-data.2.2<-read.csv('MV_200_200_fixed/Multivar_Metropolis_200D_200R_1/1 MCMC Accepted Iteration Log 2014-10-21 22-38 486.csv')
-data.2.2.2<-read.csv('MV_200_200_fixed/Multivar_Metropolis_200D_200R_3/1 MCMC Accepted Iteration Log 2014-10-21 22-38 265.csv')
-data.2.2.3<-read.csv('MV_200_200_fixed/Multivar_Metropolis_200D_200R_4/1 MCMC Accepted Iteration Log 2014-10-21 22-38 809.csv')
-
 par(mfrow=c(1,1))
 deer.burden1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/deer_burden_chains.csv')
-db1.9.1<-hist(deer.burden1.9[,2]/100, plot=FALSE)
-db1.9.2<-hist(deer.burden1.9[,3]/100, plot=FALSE)
-db1.9.3<-hist(deer.burden1.9[,4]/100, plot=FALSE)
-db1.9.4<-hist(deer.burden1.9[,5]/100, plot=FALSE)
-db1.9.5<-hist(deer.burden1.9[,6]/100, plot=FALSE)
-maxdb1.9<-max(c(db1.9.1$density, db1.9.2$density, db1.9.3$density, db1.9.4$density, db1.9.5$density))
+deer.burden3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/deer_burden_chains.csv')
+deer.burden5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/deer_burden_chains.csv')
 
 alt.burden1.9<-read.csv('~/Desktop/MV_ConstantHostPop/MV_100_900/alt_burden_chains.csv')
-ab1.9.1<-hist(alt.burden1.9[,2]/900, plot=FALSE)
-ab1.9.2<-hist(alt.burden1.9[,3]/900, plot=FALSE)
-ab1.9.3<-hist(alt.burden1.9[,4]/900, plot=FALSE)
-ab1.9.4<-hist(alt.burden1.9[,5]/900, plot=FALSE)
-ab1.9.5<-hist(alt.burden1.9[,6]/900, plot=FALSE)
-maxab1.9<-max(c(ab1.9.1$density, ab1.9.2$density, ab1.9.3$density, ab1.9.4$density, ab1.9.5$density))
-
-png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Burdens_May2015.png', height=30, width=20, units='cm', res=300)
-par(mfrow=c(3,2))
-plot(db1.9.1$mids, db1.9.1$density, type='l', ylim=c(0,maxdb1.9), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(db1.9.1$mids), db1.9.1$mids, max(db1.9.1$mids)), 
-        c(0,db1.9.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db1.9.2$mids),db1.9.2$mids,max(db1.9.2$mids)), 
-        c(0,db1.9.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db1.9.3$mids),db1.9.3$mids,max(db1.9.3$mids)), 
-        c(0,db1.9.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db1.9.4$mids),db1.9.4$mids,max(db1.9.4$mids)), 
-        c(0,db1.9.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db1.9.5$mids),db1.9.5$mids,max(db1.9.5$mids)), 
-        c(0,db1.9.5$density,0), col=alpha('blue3', 0.5))
-
-plot(ab1.9.1$mids, ab1.9.1$density, type='l', ylim=c(0,maxab1.9), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(ab1.9.1$mids), ab1.9.1$mids, max(ab1.9.1$mids)), 
-        c(0,ab1.9.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab1.9.2$mids),ab1.9.2$mids,max(ab1.9.2$mids)), 
-        c(0,ab1.9.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab1.9.3$mids),ab1.9.3$mids,max(ab1.9.3$mids)), 
-        c(0,ab1.9.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab1.9.4$mids),ab1.9.4$mids,max(ab1.9.4$mids)), 
-        c(0,ab1.9.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab1.9.5$mids),ab1.9.5$mids,max(ab1.9.5$mids)), 
-        c(0,ab1.9.5$density,0), col=alpha('blue3', 0.5))
-
-deer.burden3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/deer_burden_chains.csv')
-db3.7.1<-hist(deer.burden3.7[,2]/300, plot=FALSE)
-db3.7.2<-hist(deer.burden3.7[,3]/300, plot=FALSE)
-db3.7.3<-hist(deer.burden3.7[,4]/300, plot=FALSE)
-db3.7.4<-hist(deer.burden3.7[,5]/300, plot=FALSE)
-db3.7.5<-hist(deer.burden3.7[,6]/300, plot=FALSE)
-maxdb3.7<-max(c(db3.7.1$density, db3.7.2$density, db3.7.3$density, db3.7.4$density, db3.7.5$density))
-
 alt.burden3.7<-read.csv('~/Desktop/MV_ConstantHostPop/MV_300_700/alt_burden_chains.csv')
-ab3.7.1<-hist(alt.burden3.7[,2]/700, plot=FALSE)
-ab3.7.2<-hist(alt.burden3.7[,3]/700, plot=FALSE)
-ab3.7.3<-hist(alt.burden3.7[,4]/700, plot=FALSE)
-ab3.7.4<-hist(alt.burden3.7[,5]/700, plot=FALSE)
-ab3.7.5<-hist(alt.burden3.7[,6]/700, plot=FALSE)
-maxab3.7<-max(c(ab3.7.1$density, ab3.7.2$density, ab3.7.3$density, ab3.7.4$density, ab3.7.5$density))
-
-
-plot(db3.7.1$mids, db3.7.1$density, type='l', ylim=c(0,maxdb3.7), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(db3.7.1$mids), db3.7.1$mids, max(db3.7.1$mids)), 
-        c(0,db3.7.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db3.7.2$mids),db3.7.2$mids,max(db3.7.2$mids)), 
-        c(0,db3.7.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db3.7.3$mids),db3.7.3$mids,max(db3.7.3$mids)), 
-        c(0,db3.7.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db3.7.4$mids),db3.7.4$mids,max(db3.7.4$mids)), 
-        c(0,db3.7.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db3.7.5$mids),db3.7.5$mids,max(db3.7.5$mids)), 
-        c(0,db3.7.5$density,0), col=alpha('blue3', 0.5))
-
-plot(ab3.7.1$mids, ab3.7.1$density, type='l', ylim=c(0,maxab3.7), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(ab3.7.1$mids), ab3.7.1$mids, max(ab3.7.1$mids)), 
-        c(0,ab3.7.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab3.7.2$mids),ab3.7.2$mids,max(ab3.7.2$mids)), 
-        c(0,ab3.7.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab3.7.3$mids),ab3.7.3$mids,max(ab3.7.3$mids)), 
-        c(0,ab3.7.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab3.7.4$mids),ab3.7.4$mids,max(ab3.7.4$mids)), 
-        c(0,ab3.7.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab3.7.5$mids),ab3.7.5$mids,max(ab3.7.5$mids)), 
-        c(0,ab3.7.5$density,0), col=alpha('blue3', 0.5))
-
-deer.burden5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/deer_burden_chains.csv')
-db5.5.1<-hist(deer.burden5.5[,2]/500, plot=FALSE)
-db5.5.2<-hist(deer.burden5.5[,3]/500, plot=FALSE)
-db5.5.3<-hist(deer.burden5.5[,4]/500, plot=FALSE)
-db5.5.4<-hist(deer.burden5.5[,5]/500, plot=FALSE)
-db5.5.5<-hist(deer.burden5.5[,6]/500, plot=FALSE)
-maxdb5.5<-max(c(db5.5.1$density, db5.5.2$density, db5.5.3$density, db5.5.4$density, db5.5.5$density))
-
 alt.burden5.5<-read.csv('~/Desktop/MV_ConstantHostPop/MV_500_500/alt_burden_chains.csv')
-ab5.5.1<-hist(alt.burden5.5[,2]/500, plot=FALSE)
-ab5.5.2<-hist(alt.burden5.5[,3]/500, plot=FALSE)
-ab5.5.3<-hist(alt.burden5.5[,4]/500, plot=FALSE)
-ab5.5.4<-hist(alt.burden5.5[,5]/500, plot=FALSE)
-ab5.5.5<-hist(alt.burden5.5[,6]/500, plot=FALSE)
-maxab5.5<-max(c(ab5.5.1$density, ab5.5.2$density, ab5.5.3$density, ab5.5.4$density, ab5.5.5$density))
 
-plot(db5.5.1$mids, db5.5.1$density, type='l', ylim=c(0,maxdb5.5), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(db5.5.1$mids), db5.5.1$mids, max(db5.5.1$mids)), 
-        c(0,db5.5.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db5.5.2$mids),db5.5.2$mids,max(db5.5.2$mids)), 
-        c(0,db5.5.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db5.5.3$mids),db5.5.3$mids,max(db5.5.3$mids)), 
-        c(0,db5.5.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db5.5.4$mids),db5.5.4$mids,max(db5.5.4$mids)), 
-        c(0,db5.5.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(db5.5.5$mids),db5.5.5$mids,max(db5.5.5$mids)), 
-        c(0,db5.5.5$density,0), col=alpha('blue3', 0.5))
+# smoothing density plot option
+smooth.hists<-function(data1, data2, pop1, pop2, colors){
+  data1.hist<-hist(data1/pop1, breaks=40, plot=FALSE)
+  data2.hist<-hist(data2/pop2, breaks=40, plot=FALSE)
+  max.burden<-max(c(data1.hist$mids, data2.hist$mids))
+  max.dens<-max(c(data1.hist$density, data2.hist$density))
+  extra.points<-seq(0,max.burden,0.5)
+  plot(x=NULL, y=NULL, xlim=c(0,60), ylim=c(0,max.dens), axes=FALSE, 
+       xlab='Average Number of Ticks per Host', cex.lab=1.5, ylab="")
+  predict1<-predict(loess(data1.hist$density~data1.hist$mids, span=0.18), 
+                    newdata=extra.points)
+  predict2<-predict(loess(data2.hist$density~data2.hist$mids, span=0.18), 
+                    newdata=extra.points)
+  d1<-cbind(extra.points, predict1)
+  d2<-d1[complete.cases(d1),]
+  d3<-rbind(c(min(d2[,1]),0), d2, c(max(d2[,1]), 0))
+  a1<-cbind(extra.points, predict2)
+  a2<-a1[complete.cases(a1),]
+  a3<-rbind(c(min(a2[,1]),0), a2, c(max(a2[,1]), 0))
+  polygon(d3, col=alpha(colors[1], 0.5))
+  polygon(a3, col=alpha(colors[2], 0.5))
+  axis(side=1, cex.axis=1.5)
+}
 
-plot(ab5.5.1$mids, ab5.5.1$density, type='l', ylim=c(0,maxab5.5), axes=FALSE,
-     xlab='', ylab='', las=1, cex.lab=2, cex.axis=2)
-axis(side=1, cex.axis=2, cex.lab=2)
-mtext(text='Average Number Ticks per Deer', side=1, line=6, cex=1.5)
-polygon(c(min(ab5.5.1$mids), ab5.5.1$mids, max(ab5.5.1$mids)), 
-        c(0,ab5.5.1$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab5.5.2$mids),ab5.5.2$mids,max(ab5.5.2$mids)), 
-        c(0,ab5.5.2$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab5.5.3$mids),ab5.5.3$mids,max(ab5.5.3$mids)), 
-        c(0,ab5.5.3$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab5.5.4$mids),ab5.5.4$mids,max(ab5.5.4$mids)), 
-        c(0,ab5.5.4$density,0), col=alpha('blue3', 0.5))
-polygon(c(min(ab5.5.5$mids),ab5.5.5$mids,max(ab5.5.5$mids)), 
-        c(0,ab5.5.5$density,0), col=alpha('blue3', 0.5))
-
+png('~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Burdens_June2015.png', height=30, width=20, units='cm', res=300)
+par(mfrow=c(3,1))
+smooth.hists(deer.burden1.9[,2], alt.burden1.9[,2], 100, 900, colors=c('blue', 'red'))
+title('A', adj=0, cex.main=3)
+legend(x='topright', legend=c('Deer', 'Alternative Hosts'), fill=alpha(c('blue','red'),0.5),
+       cex=1.5, bty='n')
+smooth.hists(deer.burden3.7[,2], alt.burden3.7[,2], 300, 700, colors=c('blue', 'red'))
+title('B', adj=0, cex.main=3)
+smooth.hists(deer.burden5.5[,2], alt.burden5.5[,2], 500, 500, colors=c('blue', 'red'))
+title('C', adj=0, cex.main=3)
 dev.off()
 
+# old figure
+#png(file='~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/Burdens_May2015.png', height=30, width=20, units='cm', res=300)
 
+# reading in the 7.3 scenario, but it's not plotted above
+deer.burden7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/deer_burden_chains.csv')
+alt.burden7.3<-read.csv('~/Desktop/MV_ConstantHostPop/MV_700_300/alt_burden_chains.csv')
 
+# ----------------------------------------------------------------------
+# -- 8. ALL THE 95% CIs
+# ----------------------------------------------------------------------
 
-hist(deer.burden24/200, main='1:2', xlim=c(0,35))
-hist(alt.burden24/400, xlim=c(0,35))
-hist(deer.burden/200, main='1:1', xlim=c(0,35), breaks=25)
-hist(alt.burden/200, xlim=c(0,35), breaks=25)
-hist(deer.burden42/400, main='2:1', xlim=c(0,35))
-hist(alt.burden42/200, xlim=c(0,35))
+getCIs<-function(data.vector){
+  m<-median(data.vector)
+  q<-quantile(data.vector, probs=c(0.025, 0.975))
+  out<-c(m,q)
+  print(out)
+  return(out)
+}
 
-png(file='~/Dropbox/ModelFitting/FutureProof/Figures for Presentations/Dissertation_DeerBurden_Posteriors.png',
-    height=30, width=20, units='cm', res=300)
-par(mfrow=c(3,1), mar=c(5,5,2,2))
+pref.list<-data.frame(cbind(exp(pref1.9[,2]), exp(pref3.7[,2]), exp(pref5.5[,2]), exp(pref7.3[,2])))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(pref.list[,i])
+}
 
-db24<-hist(deer.burden24/200, breaks=40, plot=FALSE)
-db24.coords<-cbind(db24$mids, db24$density)
-db24.95<-quantile(deer.burden24/200, probs=c(0.025, 0.975))
-db24.95.data<-subset(db24.coords, db24.coords[,1] > db24.95[1] & db24.coords[,1] < db24.95[2])
-plot(db24$mids, db24$density, xlim=c(0,30), xlab='',
-     type='l', ylab='', axes=FALSE, cex.axis=1.5, cex.lab=1.5)
+rhoTD.list<-data.frame(cbind(exp(rhoTD1.9[,2]), exp(rhoTD3.7[,2]), exp(rhoTD5.5[,2]), exp(rhoTD7.3[,2])))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(rhoTD.list[,i])
+}
+
+rhoDT.list<-data.frame(cbind(exp(rhoDT1.9[,2]), exp(rhoDT3.7[,2]), exp(rhoDT5.5[,2]), exp(rhoDT7.3[,2])))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(rhoDT.list[,i])
+}
+
+deer.burden.list<-data.frame(cbind(deer.burden1.9[,2], deer.burden3.7[,2], deer.burden5.5[,2], deer.burden7.3[,2]))
+deer.pop<-c(100,300,500,700)
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(deer.burden.list[,i]/deer.pop[i])
+}
+
+alt.burden.list<-data.frame(cbind(alt.burden1.9[,2], alt.burden3.7[,2], alt.burden5.5[,2], alt.burden7.3[,2]))
+alt.pop<-c(900,700,500,300)
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(alt.burden.list[,i]/alt.pop[i])
+}
+
+ap.list<-data.frame(cbind(ap1.9[,2], ap3.7[,2], ap5.5[,2], ap7.3[,2]))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(ap.list[,i])
+}
+
+dp.list<-data.frame(cbind(dp1.9[,2], dp3.7[,2], dp5.5[,2], dp7.3[,2]))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(dp.list[,i])
+}
+
+dabp.list<-data.frame(cbind(dabp1.9[,2], dabp3.7[,2], dabp5.5[,2], dabp7.3[,2]))
+for(i in 1:4){
+  #head(pref.list[,i])
+  getCIs(dabp.list[,i])
+}
+
+# ---------------------------------------------------------------------
+# -- 9. Probability tick finds and feeds on deer
+# ---------------------------------------------------------------------
+phi<-seq(0,1,0.01)
+D<-c(100,300,500)
+R<-c(900,700,500)
+eff.deer.1<-(phi*D[1])/(D[1]+R[1])*100
+eff.deer.2<-(phi*D[2])/(D[2]+R[2])*100
+eff.deer.3<-(phi*D[3])/(D[3]+R[3])*100
+
+png('~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/phi_behavior.png', width=20, height=20,
+    units='cm', res=300)
+par(mfrow=c(1,1), mar=c(5,5,3,2))
+#bquote is the function for mixing text and expressions, but it's hard to use...
+plot(phi, eff.deer.1, xlim=c(0,1), ylim=c(0,100), type='l', col=scenario.colors[1],
+     axes=FALSE, xlab=expression(phi['D']), ylab='',
+     cex.lab=1.5, lwd=3)
+mtext(side=2, line=3.2, text='Pr(Tick Encounters and Feeds on Deer)', cex=1.5)
+lines(phi, eff.deer.2, col=scenario.colors[2], lwd=3, lty=2)
+lines(phi, eff.deer.3, col=scenario.colors[3], lwd=3, lty=3)
 axis(side=1, cex.axis=1.5)
-mtext(side=2, line=1.5, text='Scenario 1', cex=1.3)
-polygon(db24$mids, db24$density, col=alpha('gray', 0.5))
-polygon(c(min(db24.95.data[,1]),db24.95.data[,1],max(db24.95.data[,1])), 
-        c(0,db24.95.data[,2],0), col=alpha('gray', 0.5))
-
-db22<-hist(deer.burden/200, breaks=30, plot=FALSE)
-db22.coords<-cbind(db22$mids, db22$density)
-db22.95<-quantile(deer.burden/200, probs=c(0.025, 0.975))
-db22.95.data<-subset(db22.coords, db22.coords[,1] > db22.95[1] & db22.coords[,1] < db22.95[2])
-plot(db22$mids, db22$density, xlim=c(0,30), xlab='',
-     type='l', ylab='', axes=FALSE, cex.axis=1.5, cex.lab=1.5)
-axis(side=1, cex.axis=1.5)
-mtext(side=2, line=1.5, text='Scenario 2', cex=1.3)
-polygon(c(min(db22$mids),db22$mids), c(0,db22$density), col=alpha('gray', 0.5))
-polygon(c(min(db22.95.data[,1]),db22.95.data[,1],max(db22.95.data[,1])), 
-        c(0,db22.95.data[,2],0), col=alpha('gray', 0.5))
-
-db42<-hist(deer.burden42/200, breaks=40, plot=FALSE)
-db42.coords<-cbind(db42$mids, db42$density)
-db42.95<-quantile(deer.burden42/200, probs=c(0.025, 0.975))
-db42.95.data<-subset(db42.coords, db42.coords[,1] > db42.95[1] & db42.coords[,1] < db42.95[2])
-plot(db42$mids, db42$density, xlim=c(0,30), xlab='Number of Ticks Per Deer',
-     type='l', ylab='', axes=FALSE, cex.axis=1.5, cex.lab=1.5)
-axis(side=1, cex.axis=1.5)
-mtext(side=2, line=1.5, text='Scenario 3', cex=1.3)
-polygon(c(min(db42$mids), db42$mids), c(0,db42$density), col=alpha('gray', 0.5))
-polygon(c(min(db42.95.data[,1]),db42.95.data[,1],max(db42.95.data[,1])), 
-        c(0,db42.95.data[,2],0), col=alpha('gray', 0.5))
-
+axis(side=2, cex.axis=1.5, las=1)
+legend(x='topleft', col=scenario.colors[1:3], lty=c(1,2,3), lwd=3, bty='n',
+       legend=c('Scenario 1 (100:900)', 'Scenario 2 (300:700)', 'Scenario 3 (500:500)'))
 dev.off()
+
+# ----------------------------------------------------------------------
+# -- 10. FURTHER EXPLORATION OF PARAMETER CORRELATIONS
+# ----------------------------------------------------------------------
+
+# pairs plot for thinned chain representative of 100:900 deer:alt scenario
+metrics1.9.2<-cbind(exp(pref1.9[,2]), exp(rhoDT1.9[,2]), 
+                    exp(rhoTD1.9[,2]), ll1.9[,2],
+                    ap1.9[,2], dp1.9[,2], dabp1.9[,2])
+thin.by<-seq(1, length(metrics1.9.2[,1]), 100)
+metrics1.9.2.thin<-metrics1.9.2[thin.by,]
+names(metrics1.9.2.thin)<-c('pref', 'trans D->T', 'trans T->D',
+                            'loglik', 'adult prev', 'deer prev', 
+                            'deer AB prev')
+png(file='~/Desktop/MV_ConstantHostPop/Pairs_1.9_chain1_thinned.png', height=30, width=30, units='cm', res=300)
+pairs(metrics1.9.2.thin, labels=names(metrics1.9.2.thin))  
+dev.off()
+
+# pairs plot for thinned chain representative of 500:500 deer:alt scenario are consistent with the 100:900 scenario
+metrics5.5.2<-cbind(exp(pref5.5[,2]), exp(rhoDT5.5[,2]), 
+                    exp(rhoTD5.5[,2]), ll5.5[,2],
+                    ap5.5[,2], dp5.5[,2], dabp5.5[,2])
+thin.by55<-seq(1, length(metrics5.5.2[,1]), 100)
+metrics5.5.2.thin<-metrics5.5.2[thin.by55,]
+names(metrics5.5.2.thin)<-c('pref', 'trans D->T', 'trans T->D',
+                            'loglik', 'adult prev', 'deer prev', 
+                            'deer AB prev')
+#png(file='~/Desktop/MV_ConstantHostPop/Pairs_1.9_chain1_thinned.png', height=30, width=30, units='cm', res=300)
+pairs(metrics5.5.2.thin, labels=names(metrics5.5.2.thin))  
+#dev.off()
+
+# the deer prev/deer AB prev numbers are perfectly correlated because AB prevalence is 
+# a deterministic function of infection prevalence -- the duration of infection and duration
+# of immunity parameters are fixed.
