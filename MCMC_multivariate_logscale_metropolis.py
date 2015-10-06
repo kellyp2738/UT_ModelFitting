@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
 # ----------------------------------------------------------------------------------------------
-# -- MCMC_lite.py --
+# -- MCMC_multivariate_logscale_metropolis.py --
 # ----------------------------------------------------------------------------------------------
 
 # -- What this script does:
 #   -- Imports the 'VeggieDeath' SIRS model for model fitting
 #   -- Runs an MCMC process on parameters and data supplied by the user as .csv files
 #   -- Outputs the MCMC chain and several diagnostic files to the directory specified by the user
-#   -- For more detailed usage notes: $ MCMC_lite.py -h
+#   -- For more detailed usage notes: $ MCMC_multivariate_logscale_metropolis.py -h
 
 # ----------------------------------------------------------------------------------------------
 # -- Bugs to fix
@@ -179,7 +179,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # -- Randomly draw parameters and record their log(value)
     # ----------------------------------------------------------------------------------------------
     
-    params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw three random pars to seed the chains
+    params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())], math.log(np.random.uniform()) #draw four random pars to seed the chains
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
@@ -241,7 +241,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # like staring into the eye of Sauron and no one wants that.
     
     # -- Make some arrays that will store the parameter chains --
-    par_names = ['phiD', 'rhoTD', 'rhoDT'] # names that will be used for the main iteration log containing only accepted par sets
+    par_names = ['phiD', 'phiA', 'rhoTD', 'rhoDT'] # names that will be used for the main iteration log containing only accepted par sets
     prop_par_names = [] # empty container to store the proposal names, which are teh same as the par_names, only with '_prop' added to differentiate them
     for q in par_names:                     #
         prop_par_names.append(q+'_prop')    # adjust the names
@@ -356,7 +356,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # ----------------------------------------------------------------------------------------------
     
         if i==0: # in the first iteration, run the model with the first set of parameters... this requires some non-obvious updates to both the accepted and proposed logs to kick everything off.  
-            run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2])] # these are the starting values copied over from the params input file
+            run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2]), math.exp(prop_iteration_log[0,3])] # these are the starting values copied over from the params input file
             print 'starting parameters', run_pars
             #return
             #run_pars=prop_iteration_log[0]
@@ -471,19 +471,20 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # ----------------------------------------------------------------------------------------------
     
             # -- Dynamic step size adjustment during the pilot runs
-            theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs])]
+            theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2], np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
             
             #print 'new params', theta_star
             #print 'new log params', log_theta_star
             
-            in_bounds_pref = (0 < theta_star[0] < 1)
-            in_bounds_rho = (0 < theta_star[1] < 1)
-            in_bounds_rho2 = (0 < theta_star[2] < 1)
+            in_bounds_prefD = (0 < theta_star[0] < 1)
+	    in_bounds_prefA = (0 < theta_star[1] < 1)
+            in_bounds_rho = (0 < theta_star[2] < 1)
+            in_bounds_rho2 = (0 < theta_star[3] < 1)
             
             # -- Are the parameters in bounds?
-            if in_bounds_pref and in_bounds_rho and in_bounds_rho2:
+            if in_bounds_prefD and in_bounds_prefA and in_bounds_rho and in_bounds_rho2:
             
-                prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2])]
+                prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2]), math.log(theta_star[3])]
             
                 # -- Run the SIRS model with the new parameters
                 par_bounds_log[i] = 1 # indicate that the par was in bounds           
@@ -676,16 +677,17 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         
         # sample on the log-scale from a multivariate normal distribution
         log_theta_star = np.random.multivariate_normal(proposal_mean, proposal_covariance) # return new par vector of same length as means vector
-        theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2])]
+        theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2]), math.exp(log_theta_star[3])]
         prop_iteration_log[i]=log_theta_star # put it in the proposal log
         
-        in_bounds_pref = (0 < theta_star[0] < 1)
-        in_bounds_rho = (0 < theta_star[1] < 1)
-        in_bounds_rho2 = (0 < theta_star[2] < 1)
+        in_bounds_prefD = (0 < theta_star[0] < 1)
+	in_bounds_prefA = (0 < theta_star[1] < 1)
+        in_bounds_rho = (0 < theta_star[2] < 1)
+        in_bounds_rho2 = (0 < theta_star[3] < 1)
         
         
         # -- Are the parameters in bounds?
-        if in_bounds_pref and in_bounds_rho and in_bounds_rho2:
+        if in_bounds_prefD and in_bounds_prefA and in_bounds_rho and in_bounds_rho2:
         
             # -- Run the SIRS model with the new parameter
             par_bounds_log[i] = 1 # indicate that the par was in bounds           
