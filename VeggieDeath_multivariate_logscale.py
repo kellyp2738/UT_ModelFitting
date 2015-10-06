@@ -82,7 +82,7 @@ def SIRprevalences(run_params, R, finalTime, counter, num_prefs, racc_pop):
     # -- determine which preference scheme is in use
     
     phiD=run_params[0]
-    phiR=1-run_params[0]
+    phiR=run_params[1]
     #phiD=math.exp(run_params[0])   # for a single pref, specify only phiDTL
     #phiR=1-math.exp(run_params[0])
     #print phiD
@@ -90,8 +90,8 @@ def SIRprevalences(run_params, R, finalTime, counter, num_prefs, racc_pop):
     # -- define demographic and epidemiologic constants
     # -- raccoon epi parameters have been removed
     
-    rhoTD = run_params[1]
-    rhoDT = run_params[2]
+    rhoTD = run_params[2]
+    rhoDT = run_params[3]
     #rhoTD = math.exp(run_params[1])
     #rhoDT = math.exp(run_params[2])
     #print phiD, rhoTD, rhoDT
