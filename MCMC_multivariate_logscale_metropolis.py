@@ -35,9 +35,9 @@ from scipy import integrate
 from scipy import stats
 import scipy
 import math
-import pylab
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
+#import pylab
+#import matplotlib.mlab as mlab
+#import matplotlib.pyplot as plt
 from decimal import *
 import decimal
 import time
@@ -179,7 +179,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # -- Randomly draw parameters and record their log(value)
     # ----------------------------------------------------------------------------------------------
     
-    params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())], math.log(np.random.uniform()) #draw four random pars to seed the chains
+    params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw four random pars to seed the chains
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
@@ -471,7 +471,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # ----------------------------------------------------------------------------------------------
     
             # -- Dynamic step size adjustment during the pilot runs
-            theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2], np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
+            theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
             
             #print 'new params', theta_star
             #print 'new log params', log_theta_star
@@ -664,12 +664,12 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 g.write(" ".join(map(str, accepted)))               
             #np.savetxt(proposed_run_name, proposed, delimiter=',', fmt='%20s')
 
-	# ----------------------------------------------------------------------------------------------
+	    # ----------------------------------------------------------------------------------------------
         # -- Propose new parameters through a random walk
         # ----------------------------------------------------------------------------------------------
 
-	# get the covariance matrix for the proposal distribution
-	# proposal distribution is defined by ALL iterations after adaptive step size checking stops
+	    # get the covariance matrix for the proposal distribution
+	    # proposal distribution is defined by ALL iterations after adaptive step size checking stops
     	for_cov=iteration_log[50000+interval:i,]
     	inflate=1.5
     	proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
@@ -680,8 +680,25 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2]), math.exp(log_theta_star[3])]
         prop_iteration_log[i]=log_theta_star # put it in the proposal log
         
+        # ---------------------------------------------------------------------------------------------
+        # -- Proposal revision: xi = xi-1 + N(0, alpha*cov)
+        # ---------------------------------------------------------------------------------------------
+        
+        # get the covariance matrix for the proposal distribution
+        # proposal distribution is defined by ALL iterations after adaptive step size checking stops
+        #for_cov=iteration_log[50000+interval:i,]
+        #inflate=1.5
+        #proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
+        #last_proposal=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+        
+        # sample on the log-scale from a multivariate normal distribution
+        inflate = 1.5
+        scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
+        theta_star = [iteration_log[0]+scaling_factor[0], iteration_log[1]+scaling_factor[1], iteration_log[2]+scaling_factor[2], iteration_log[3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
+        prop_iteration_log[i]=log_theta_star # put it in the proposal log
+        
         in_bounds_prefD = (0 < theta_star[0] < 1)
-	in_bounds_prefA = (0 < theta_star[1] < 1)
+        in_bounds_prefA = (0 < theta_star[1] < 1)
         in_bounds_rho = (0 < theta_star[2] < 1)
         in_bounds_rho2 = (0 < theta_star[3] < 1)
         
