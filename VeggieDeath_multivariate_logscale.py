@@ -11,10 +11,10 @@ from scipy import integrate
 from scipy import stats
 import scipy
 import math
-import pylab
-import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
-import matplotlib.figure as fig
+#import pylab
+#import matplotlib.mlab as mlab
+#import matplotlib.pyplot as plt
+#import matplotlib.figure as fig
 from decimal import *
 import decimal
 import time
