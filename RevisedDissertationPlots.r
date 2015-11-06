@@ -866,6 +866,7 @@ R<-c(900,700,500)
 eff.deer.1<-(phi*D[1])/(D[1]+R[1])*100
 eff.deer.2<-(phi*D[2])/(D[2]+R[2])*100
 eff.deer.3<-(phi*D[3])/(D[3]+R[3])*100
+scenario.colors<-c('#a1dab4', '#41b6c4', '#225ea8')
 
 png('~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/phi_behavior.png', width=20, height=20,
     units='cm', res=300)
@@ -882,6 +883,76 @@ axis(side=2, cex.axis=1.5, las=1)
 legend(x='topleft', col=scenario.colors[1:3], lty=c(1,2,3), lwd=3, bty='n',
        legend=c('Scenario 1 (100:900)', 'Scenario 2 (300:700)', 'Scenario 3 (500:500)'))
 dev.off()
+
+pr.encounter.feed<-function(phi, D, H){
+  pr.e.f<-phi*(D/H)*100
+  return(pr.e.f)
+}
+p1<-pr.encounter.feed(phi=1/2, D=seq(0,500,100), H=1000)
+p2<-pr.encounter.feed(phi=1/3, D=seq(0,500,100), H=1000)
+p3<-pr.encounter.feed(phi=1/4, D=seq(0,500,100), H=1000)
+p4<-pr.encounter.feed(phi=1/5, D=seq(0,500,100), H=1000)
+rel.abundance.range<-(seq(0,500,100)/1000)*100
+no.pref<-(seq(0,500,100)/1000)*100
+png('~/Dropbox/DigitalLabNotebooks/TickModel/MiscFigures/dilution_expectations.png', width=20, height=20,
+    units='cm', res=300)
+par(mfrow=c(1,1), mar=c(6,6,3,2))
+plot(rel.abundance.range, p1, ylim=c(0,50), las=1, ylab='', xlab='Relative Abundance, Deer',
+     type='l', lty=3, lwd=2, col=scenario.colors[1], cex.lab=1.5, axes=F, 
+     xlim=c(0,50))
+axis(side=1, cex.axis=1.5)
+axis(side=2, cex.axis=1.5)
+mtext(side=2, line=3.2, text='Pr(Tick Encounters and Feeds on Deer)', cex=1.5)
+lines(rel.abundance.range, p2, lty=3, lwd=2, col=scenario.colors[2])
+lines(rel.abundance.range, p3, lty=3, lwd=2, col=scenario.colors[3])
+lines(rel.abundance.range, p4, lty=3, lwd=2)
+lines(rel.abundance.range, no.pref, lwd=2)
+points(x=10, y=pr.encounter.feed(0.422, 100, 1000), pch=16, col='red')
+points(x=30, y=pr.encounter.feed(0.216, 300, 1000), pch=16, col='red')
+points(x=50, y=pr.encounter.feed(0.14, 500, 1000), pch=16, col='red')
+legend('topleft', legend=c('No Preference Term', 'Equal Preference, 2 Hosts', 'Equal Preference, 3 Hosts', 'Equal Preference, 4 Hosts', 'Equal Preference, 5 hosts', 'Model Estimates'),
+       lty=c(1, 3, 3, 3, 3, NA), col=c('black', scenario.colors, 'black', 'red'), pch=c(NA, NA, NA, NA, NA, 16), bty='n',
+       lwd=c(2, 2, 2, 2, 2, NA))
+dev.off()
+
+library(asbio)
+library(vegan)
+deer<-c(100,300,500)
+alt<-c(900,700,500)
+scenarios<-cbind(deer,alt)
+ds<-diversity(scenarios)
+plot(deer/1000, ds, pch=16, ylim=c(0,0.7))
+points(deer/1000, c(0.422, 0.216, 0.14), col='red', pch=16)
+plot(c(0.422, 0.216, 0.14), ds, col='blue', pch=16, xlim=c(0,1), ylim=c(0,1))
+cor.test(ds, c) # estimated pref parameter correlates with diversity
+# that's not unexpected, but is it meaningful?
+
+h3<-diversity(c(500,500,500))
+h4<-diversity(c(500,500,500,500))
+h5<-diversity(c(500,500,500,500,500))
+h6<-diversity(c(500,500,500,500,500,500))
+
+rel<-lm(ds~c(0.422, 0.216, 0.14))
+
+pred.phi<-function(x){
+  phi<-((coefficients(rel)[[1]])+(x*coefficients(rel)[[2]]))
+  return(phi)
+}
+
+lines(c(0.422, 0.216, 0.14), pred.phi(c(0.422, 0.216, 0.14)))
+pred.phi(h3)
+
+# how does probability of tick encounter scale with different metrics of diversity?
+
+it is a set probability of encounter + feeding that explains the disease prevalence
+what would actually drive this in natural settings?
+it can't be that preference really changes as a function of community composition
+rather preference is likely something that is set, and different communities will have
+
+because the model was fitted to studies drawn from a variety of different sites and with
+presumably different community structures, we don't know which community assemblage makes sense
+
+
 
 # ----------------------------------------------------------------------
 # -- 10. FURTHER EXPLORATION OF PARAMETER CORRELATIONS
