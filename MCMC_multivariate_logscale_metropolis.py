@@ -487,7 +487,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # -- use the logit transform of the param to define the sampling distribution
             theta=[np.random.normal(myLogit(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 3]), steps_log[cs])]
             
-            theta_star = myiLogit(theta)
+            theta_star = [myiLogit(y) for y in theta]
             
             #print 'new params', theta_star
             #print 'new log params', log_theta_star
