@@ -47,6 +47,7 @@ import sys, getopt
 from math import pi
 
 import VeggieDeath_multivariate_logscale as VD
+from scipy.special._ufuncs import logit
 
 # ----------------------------------------------------------------------------------------------
 # -- Parse command line arguments --
@@ -179,7 +180,9 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # -- Randomly draw parameters and record their log(value)
     # ----------------------------------------------------------------------------------------------
     
-    params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw four random pars to seed the chains
+    #params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw four random pars to seed the chains
+    # seed chain with parameters drawn from [0,1]
+    params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
@@ -356,7 +359,9 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # ----------------------------------------------------------------------------------------------
     
         if i==0: # in the first iteration, run the model with the first set of parameters... this requires some non-obvious updates to both the accepted and proposed logs to kick everything off.  
-            run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2]), math.exp(prop_iteration_log[0,3])] # these are the starting values copied over from the params input file
+            #run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2]), math.exp(prop_iteration_log[0,3])] # these are the starting values copied over from the params input file
+            # no need to exponentiate; current version draws first parameter set from the appropriate interval [0,1]
+            run_pars=[prop_iteration_log[0,0], prop_iteration_log[0,1], prop_iteration_log[0,2], prop_iteration_log[0,3]] # these are the starting values copied over from the params input file
             print 'starting parameters', run_pars
             #return
             #run_pars=prop_iteration_log[0]
@@ -471,20 +476,32 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # ----------------------------------------------------------------------------------------------
     
             # -- Dynamic step size adjustment during the pilot runs
-            theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
+            #theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
+            
+            def myLogit(x):
+                return np.math.log((x/(1-x)))
+            
+            def myiLogit(x):
+                return 1/(1+np.math.exp(-x))
+            
+            # -- use the logit transform of the param to define the sampling distribution
+            theta=[np.random.normal(myLogit(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 3]), steps_log[cs])]
+            
+            theta_star = myiLogit(theta)
             
             #print 'new params', theta_star
             #print 'new log params', log_theta_star
             
             in_bounds_prefD = (0 < theta_star[0] < 1)
-	    in_bounds_prefA = (0 < theta_star[1] < 1)
+            in_bounds_prefA = (0 < theta_star[1] < 1)
             in_bounds_rho = (0 < theta_star[2] < 1)
             in_bounds_rho2 = (0 < theta_star[3] < 1)
             
             # -- Are the parameters in bounds?
             if in_bounds_prefD and in_bounds_prefA and in_bounds_rho and in_bounds_rho2:
             
-                prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2]), math.log(theta_star[3])]
+                #prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2]), math.log(theta_star[3])]
+                prop_iteration_log[i] = theta_star # record the inverse logit values, which will range betweeon [0,1]
             
                 # -- Run the SIRS model with the new parameters
                 par_bounds_log[i] = 1 # indicate that the par was in bounds           
