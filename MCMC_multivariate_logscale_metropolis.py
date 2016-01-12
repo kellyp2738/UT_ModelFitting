@@ -167,6 +167,12 @@ def norm_lik_logit_scale(prev_distr, output_prevs):
     
     return final_ll
 
+def myLogit(x):
+    return np.math.log((x/(1-x)))
+            
+def myiLogit(x):
+    return 1/(1+np.math.exp(-x))
+
 # -- MCMC() is the brains of the operation
 
 def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = False):
@@ -182,7 +188,9 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     #params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw four random pars to seed the chains
     # seed chain with parameters drawn from [0,1]
-    params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
+    probability_params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
+    params = [myLogit(x) for x in probability_params]
+    print 'params', params
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
@@ -353,7 +361,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     #for i in range(iterations):
     fail_count=0
     for i in range(100000): # generate a pilot proposal distribution
-    
+    #for i in range(100):
         # ----------------------------------------------------------------------------------------------
         # -- The first iteration seeds the chain
         # ----------------------------------------------------------------------------------------------
@@ -361,7 +369,8 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         if i==0: # in the first iteration, run the model with the first set of parameters... this requires some non-obvious updates to both the accepted and proposed logs to kick everything off.  
             #run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2]), math.exp(prop_iteration_log[0,3])] # these are the starting values copied over from the params input file
             # no need to exponentiate; current version draws first parameter set from the appropriate interval [0,1]
-            run_pars=[prop_iteration_log[0,0], prop_iteration_log[0,1], prop_iteration_log[0,2], prop_iteration_log[0,3]] # these are the starting values copied over from the params input file
+            #run_pars=[prop_iteration_log[0,0], prop_iteration_log[0,1], prop_iteration_log[0,2], prop_iteration_log[0,3]] # these are the starting values copied over from the params input file
+            run_pars=probability_params # the very first params we randomly chose; scaled [0,1]
             print 'starting parameters', run_pars
             #return
             #run_pars=prop_iteration_log[0]
@@ -478,19 +487,18 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # -- Dynamic step size adjustment during the pilot runs
             #theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
             
-            def myLogit(x):
-                return np.math.log((x/(1-x)))
-            
-            def myiLogit(x):
-                return 1/(1+np.math.exp(-x))
-            
             # -- use the logit transform of the param to define the sampling distribution
-            theta=[np.random.normal(myLogit(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 3]), steps_log[cs])]
+            #theta=[np.random.normal(myLogit(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 3]), steps_log[cs])]
+            theta = [np.random.normal(iteration_log[i-1, 0], steps_log[cs]), np.random.normal(iteration_log[i-1, 1], steps_log[cs]), np.random.normal(iteration_log[i-1, 2], steps_log[cs]), np.random.normal(iteration_log[i-1, 3], steps_log[cs])]
+            #print 'theta', theta
             
             theta_star = [myiLogit(y) for y in theta]
+            #print 'theta star', theta_star
             
             #print 'new params', theta_star
             #print 'new log params', log_theta_star
+            
+            #print 'theta star [0]', theta_star[0]
             
             in_bounds_prefD = (0 < theta_star[0] < 1)
             in_bounds_prefA = (0 < theta_star[1] < 1)
@@ -501,7 +509,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             if in_bounds_prefD and in_bounds_prefA and in_bounds_rho and in_bounds_rho2:
             
                 #prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2]), math.log(theta_star[3])]
-                prop_iteration_log[i] = theta_star # record the inverse logit values, which will range betweeon [0,1]
+                prop_iteration_log[i] = theta # record the  logit values
             
                 # -- Run the SIRS model with the new parameters
                 par_bounds_log[i] = 1 # indicate that the par was in bounds           
@@ -652,7 +660,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 #step_size_log[i] = step_size_log[i-1]
             
     for i in range(100000,iterations):   
-    
+    #for i in range(100, iterations):
         # ----------------------------------------------------------------------------------------------
         # -- Subsequent iterations build the chain
         # ----------------------------------------------------------------------------------------------
@@ -687,15 +695,17 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
 
 	    # get the covariance matrix for the proposal distribution
 	    # proposal distribution is defined by ALL iterations after adaptive step size checking stops
-    	for_cov=iteration_log[50000+interval:i,]
-    	inflate=1.5
-    	proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
-    	proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+    	#for_cov=iteration_log[50000+interval:i,]
+    	for_cov=iteration_log[0:100,]
+    	proposal_covariance=np.cov(for_cov, rowvar=0)
+    	#proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+        
+        #print 'cov', proposal_covariance
         
         # sample on the log-scale from a multivariate normal distribution
-        log_theta_star = np.random.multivariate_normal(proposal_mean, proposal_covariance) # return new par vector of same length as means vector
-        theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2]), math.exp(log_theta_star[3])]
-        prop_iteration_log[i]=log_theta_star # put it in the proposal log
+        #log_theta_star = np.random.multivariate_normal(proposal_mean, proposal_covariance) # return new par vector of same length as means vector
+        #theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2]), math.exp(log_theta_star[3])]
+        #prop_iteration_log[i]=log_theta_star # put it in the proposal log
         
         # ---------------------------------------------------------------------------------------------
         # -- Proposal revision: xi = xi-1 + N(0, alpha*cov)
@@ -711,8 +721,12 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # sample on the log-scale from a multivariate normal distribution
         inflate = 1.5
         scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
-        theta_star = [iteration_log[0]+scaling_factor[0], iteration_log[1]+scaling_factor[1], iteration_log[2]+scaling_factor[2], iteration_log[3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
-        prop_iteration_log[i]=log_theta_star # put it in the proposal log
+        #print 'scaling factor', scaling_factor
+        theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
+        #print 'new theta', theta
+        theta_star = [myiLogit(x) for x in theta]
+        #print 'multivar theta_star', theta_star
+        prop_iteration_log[i]=theta # put it in the proposal log
         
         in_bounds_prefD = (0 < theta_star[0] < 1)
         in_bounds_prefA = (0 < theta_star[1] < 1)
