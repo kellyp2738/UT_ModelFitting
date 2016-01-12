@@ -133,13 +133,14 @@ def norm_lik_logit_scale(prev_distr, output_prevs):
 
     # -- remove nymph data from output_prevs to avoid confusion over indexes
     output_prevs = output_prevs[1:] # remove index 0
+    
     #print 'output prevs', output_prevs
 
     # -- logit transform the model outputs
     psi=[]
     for theta in output_prevs:
         psi.append(math.log(theta/(1-theta)))
-    #print 'psi values', psi
+    print 'psi values', psi
     #print 'out prev  ', output_prevs
     
     # -- storage vector for log likelihoods
@@ -147,7 +148,7 @@ def norm_lik_logit_scale(prev_distr, output_prevs):
     
     # -- calculate individual log likelihoods # EXCLUDING THE RACCOON DATA
     for i in range(0,3):
-        #print 'animal index', i, 'mean', prev_distr[0][i], 'sd', prev_distr[1][i]
+        print 'animal index', i, 'mean', prev_distr[0][i], 'sd', prev_distr[1][i]
         lik=Decimal(scipy.stats.norm(prev_distr[0][i], prev_distr[1][i]).pdf(psi[i]))
         ll=Decimal(lik).ln()
         if math.isnan(ll):
