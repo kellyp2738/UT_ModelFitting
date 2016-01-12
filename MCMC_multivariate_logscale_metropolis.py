@@ -47,7 +47,7 @@ import sys, getopt
 from math import pi
 
 import VeggieDeath_multivariate_logscale as VD
-from scipy.special._ufuncs import logit
+#from scipy.special._ufuncs import logit
 
 # ----------------------------------------------------------------------------------------------
 # -- Parse command line arguments --
