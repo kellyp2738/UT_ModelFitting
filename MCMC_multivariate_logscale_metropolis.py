@@ -24,7 +24,7 @@
 # -- Import modules --
 # ----------------------------------------------------------------------------------------------
 
-from __future__ import division #because otherwise 1/2 = 0. Thanks, python!
+from __future__ import division #because otherwise 1/2 = 0. 
 import pdb
 import copy
 import random as rand
@@ -33,7 +33,7 @@ import numpy as np
 #np.random.seed(0) #set the seed for the random number generator (different seed from above)
 from scipy import integrate
 from scipy import stats
-import scipy
+import scipy as scipy
 import math
 #import pylab
 #import matplotlib.mlab as mlab
@@ -110,23 +110,6 @@ def BindLogs(accepted_log_names, iteration_log, model_out_log, prev_log, lik_log
     # -- return the two array objects
     return used_final, proposed_final
 
-# -- prior() calculates the prior probability of parameters
-# -- this function assumes all priors are normally distributed
-
-def prior(params, run_pars, est_index, i):
-    
-    # -- initialize a storage vector for the prior probabilities of parameters
-    prior_dist=[]
-    
-    # -- look up the mean of the parameter prior dist (params[1][index]), look of the sd of the parameter prior dist (params[3][index]), and evaluate the log(pdf) at the relevant proposed parameter value, run_pars[index].
-    for index in est_index:
-        prior_dist.append(scipy.stats.norm(params[1][index], params[3][index]).logpdf(run_pars[index])) 
-    
-    prior_prob=Decimal(sum(prior_dist))
-    
-    # -- return the prior probability as an object
-    return prior_prob
-
 # -- calculate the log lik of the prevalence values sampled on the logit scale
 
 def norm_lik_logit_scale(prev_distr, output_prevs):
@@ -180,14 +163,10 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     #pdb.set_trace()
     
-    # -- MCMC_lite.py will only run the 'VeggieDeath' variant of the SIR model. Check that this is correctly specified
-    # -- aquire parameters and assign functions as specified by the module VD
-    
     # ----------------------------------------------------------------------------------------------
     # -- Randomly draw parameters and record their log(value)
     # ----------------------------------------------------------------------------------------------
     
-    #params = [math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform()), math.log(np.random.uniform())] #draw four random pars to seed the chains
     # seed chain with parameters drawn from [0,1]
     probability_params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
     params = [myLogit(x) for x in probability_params]
@@ -254,7 +233,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     # -- Make some arrays that will store the parameter chains --
     par_names = ['phiD', 'phiA', 'rhoTD', 'rhoDT'] # names that will be used for the main iteration log containing only accepted par sets
-    prop_par_names = [] # empty container to store the proposal names, which are teh same as the par_names, only with '_prop' added to differentiate them
+    prop_par_names = [] # empty container to store the proposal names, which are the same as the par_names, only with '_prop' added to differentiate them
     for q in par_names:                     #
         prop_par_names.append(q+'_prop')    # adjust the names
     iteration_log = np.array([[0.0]*len(par_names)]*iterations) # an array to store the accepted proposals
@@ -298,12 +277,6 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     prop_t_eq=['prop_time_to_eq'] # the length of the model output time series so that we can track how long it takes the models to reach steady state
     prop_t_eq_log = np.zeros(shape=(iterations, 1))
     
-    # DEPRECATED: logging of update index for single component fitting
-    #update_index=['update_index']
-    #update_index_log = np.zeros(shape=(iterations, 1))
-    # -- start a counter that tracks the total number of accepted proposals
-    #accept_total=0 #start the counter
-    
     # -- rename a variable out of laziness
     initial_pops = pop_sizes # give this guy a new name to match with what was already in the SIRPrevalences calls. laziness!
     
@@ -333,21 +306,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     # -- Start a counter for how many times step size has been checked
     cs = 0
-    
-    ## SINGLE COMPONENT STEP SIZE ADJUSTMENT CODE REMOVED
-    
-    # -- DEPRECATED
-    # tracking the index of estimated params is necessary if prior probabilities are ever assigned to their values
-    # therefore, I'm keeping this definition in the code in case it's useful in the future
-    #est_index=['a', 'a', 'a'] #there are three params to estimate; instead of changing est_index to 3 everwhere, we just define it once here as a vector with length 3.
-    
-    # -- DEPRECATED
-    # we don't need to keep track of which parameter is updated because the current model uses block updating
-    #is_updated=[]
-    #Paccept_reject=[]
-    #is_updated_log=np.zeros(shape=(iterations, len(est_index))) # log 0 or 1 for which par was updated
-    #Paccept_reject_log=np.zeros(shape=(iterations, len(est_index))) # a log for the accept/reject by parameter -- should be a 0 or 1
-       
+          
     # ----------------------------------------------------------------------------------------------
     # -- Paste all the names together for the storage of one big unified chain
     # ----------------------------------------------------------------------------------------------
@@ -405,16 +364,6 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                         print 'Infinite log likelihood, iteration', i
                         print dir_name
                         return
-                    #else:
-                    #    if param_priors == True:
-                    #        p=prior(params, run_pars, est_index, i)
-                    #        prior_log[i] = p
-                    #        prop_prior_log[i] = p
-                    #        post = ll + p
-                    #    else:
-                    #        post = ll
-                    #    prop_post_log[i]=post
-                    #    post_log[i]=post
                     else:
                         post = ll
                         prop_post_log[i]=post
@@ -429,18 +378,6 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # ----------------------------------------------------------------------------------------------
         
         else: # do pilot runs to generate a proposal distribution
-            #print i
-            
-            # these parameters are on the log scale
-            #log_theta_star=[np.random.normal(iteration_log[i-1, 0], 0.1), np.random.normal(iteration_log[i-1, 1], 0.1), np.random.normal(iteration_log[i-1, 2], 0.1)]
-            # the exponentiated params to pass to the SIR fxn
-            #theta_star=[math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2])]
-            #prop_iteration_log[i] = log_theta_star
-            
-            # sample the transformed params to get proposals from a symetric distribution
-            
-            #should you want to use a fixed step size, use this line:
-            #theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), 0.05), np.random.normal(math.exp(iteration_log[i-1, 1]), 0.05), np.random.normal(math.exp(iteration_log[i-1, 2]), 0.05)]
             
             # ----------------------------------------------------------------------------------------------
             # -- Check step sizes
@@ -486,38 +423,25 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             # ----------------------------------------------------------------------------------------------
     
             # -- Dynamic step size adjustment during the pilot runs
-            #theta_star=[np.random.normal(math.exp(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(math.exp(iteration_log[i-1, 3]), steps_log[cs])]
-            
-            # -- use the logit transform of the param to define the sampling distribution
-            #theta=[np.random.normal(myLogit(iteration_log[i-1, 0]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 1]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 2]), steps_log[cs]), np.random.normal(myLogit(iteration_log[i-1, 3]), steps_log[cs])]
             theta = [np.random.normal(iteration_log[i-1, 0], steps_log[cs]), np.random.normal(iteration_log[i-1, 1], steps_log[cs]), np.random.normal(iteration_log[i-1, 2], steps_log[cs]), np.random.normal(iteration_log[i-1, 3], steps_log[cs])]
             #print 'theta', theta
             
-            theta_star = [myiLogit(y) for y in theta]
-            #print 'theta star', theta_star
-            
-            #print 'new params', theta_star
-            #print 'new log params', log_theta_star
-            
-            #print 'theta star [0]', theta_star[0]
-            
-            in_bounds_prefD = (0 < theta_star[0] < 1)
-            in_bounds_prefA = (0 < theta_star[1] < 1)
-            in_bounds_rho = (0 < theta_star[2] < 1)
-            in_bounds_rho2 = (0 < theta_star[3] < 1)
+            in_bounds_prefD = (0 < theta[0] < 1)
+            in_bounds_prefA = (0 < theta[1] < 1)
+            in_bounds_rho = (0 < theta[2] < 1)
+            in_bounds_rho2 = (0 < theta[3] < 1)
             
             # -- Are the parameters in bounds?
             if in_bounds_prefD and in_bounds_prefA and in_bounds_rho and in_bounds_rho2:
             
-                #prop_iteration_log[i] = [math.log(theta_star[0]), math.log(theta_star[1]), math.log(theta_star[2]), math.log(theta_star[3])]
-                prop_iteration_log[i] = theta # record the  logit values
+                prop_iteration_log[i] = theta # record the new values
             
                 # -- Run the SIRS model with the new parameters
                 par_bounds_log[i] = 1 # indicate that the par was in bounds           
                 #if i > 2300:
                 #   print 'phi', run_pars[0]
                 #print 'new phi value', new
-                r_all=SIR(theta_star, initial_pops, 1000, 0, 1, racc_pop) #log-scale params get exponentiated in the SIR module
+                r_all=SIR(theta, initial_pops, 1000, 0, 1, racc_pop) #log-scale params get exponentiated in the SIR module
                 r=r_all[0]
                 #print 'population sizes', r
                 time_to_eq=r_all[1]
@@ -540,10 +464,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                         prop_prev_log[i]=prevs
                         
                         # -- Calculate the log likelihood
-                        ll=calc_lik(prev_data, prevs)
-                        #print 'll', ll
-                        #if i > 2300:
-                        #   print 'likelihood', ll
+                        ll=calc_lik(prev_data, prevs) # will return 'fail 1' or 'fail 2' if loglik can't be calculated
                         
                         # -- Could a log likelihood be calculated?
                         possible_failures = ['fail 1', 'fail 2']
@@ -553,15 +474,6 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                             # -- record the log likelihood in the data array
                             prop_lik_log[i]=ll # we can't automatically add this to the array b/c if it's 'fail' that's a string and it can't go into a numpy array of dtype float
                             prop_lik_bounds_log[i] = 1 #in bounds
-                            
-                            # -- calculate prior probabilities where appropriate
-                            #if param_priors == True:
-                            #    p=prior(params, run_pars, est_index, i)
-                            #    prior_log[i] = p
-                            #    prop_prior_log[i] = p
-                            #    post = ll + p
-                            #else:
-                            #    post = ll
                             post = ll
                             prop_post_log[i]=post
                             old_post = post_log[i-1][0] # retrieve the most recent ACCEPTED posterior
@@ -573,12 +485,10 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                             
                             # -- note: if sampling params from non-symmetrical distribution, incl. the ratio of values in the accept/reject calculation
                             
-                            # -- deprecated: acceptance ratio for Metropolis algorithm
-                            # -- for testing the code, we're using the incorrect acceptance criterion (need guidance from JS on how to do it properly)
                             prob = Decimal(post-old_post).exp()
                             #print 'accept probability', prob
                             
-                            # -- current: acceptance ratio for Metropolis-Hastings algorithm where transmission is drawn from an asymmetrical (lognormal) distribution
+                            # -- acceptance ratio for Metropolis-Hastings algorithm where transmission is drawn from an asymmetrical (lognormal) distribution
                             #r=(post-old_post)+Decimal(Jt1-Jt2)+Decimal(Jt12-Jt22) #Roz version
                             #r=(post-old_post)+Decimal(Jt2-Jt1)
                             #r=Decimal(math.exp(post)/math.exp(old_post))*Decimal(Jt2/Jt1)
@@ -694,45 +604,24 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # -- Propose new parameters through a random walk
         # ----------------------------------------------------------------------------------------------
 
-	    # get the covariance matrix for the proposal distribution
-	    # proposal distribution is defined by ALL iterations after adaptive step size checking stops
-    	#for_cov=iteration_log[50000+interval:i,]
-    	for_cov=iteration_log[0:100,]
-    	proposal_covariance=np.cov(for_cov, rowvar=0)
-    	#proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
-        
-        #print 'cov', proposal_covariance
-        
-        # sample on the log-scale from a multivariate normal distribution
-        #log_theta_star = np.random.multivariate_normal(proposal_mean, proposal_covariance) # return new par vector of same length as means vector
-        #theta_star = [math.exp(log_theta_star[0]), math.exp(log_theta_star[1]), math.exp(log_theta_star[2]), math.exp(log_theta_star[3])]
-        #prop_iteration_log[i]=log_theta_star # put it in the proposal log
-        
-        # ---------------------------------------------------------------------------------------------
-        # -- Proposal revision: xi = xi-1 + N(0, alpha*cov)
-        # ---------------------------------------------------------------------------------------------
-        
         # get the covariance matrix for the proposal distribution
         # proposal distribution is defined by ALL iterations after adaptive step size checking stops
-        #for_cov=iteration_log[50000+interval:i,]
-        #inflate=1.5
-        #proposal_covariance=inflate*np.cov(for_cov, rowvar=0)
-        #last_proposal=iteration_log[i-1] # proposal distr. is centered on the last accepted value
-        
-        # sample on the log-scale from a multivariate normal distribution
-        inflate = 1.5
+        for_cov=iteration_log[50000+interval:i,]
+        proposal_covariance=np.cov(for_cov, rowvar=0)
+        proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+        # -- TWO OPTIONS FOR PROPOSALS --#
+        # currently both are commented out so code would break here if run...
         scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
-        #print 'scaling factor', scaling_factor
-        theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
-        #print 'new theta', theta
-        theta_star = [myiLogit(x) for x in theta]
-        #print 'multivar theta_star', theta_star
+        #theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
+        #theta = np.random.multivariate_normal(proposal_mean, 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
+
+        #print 'multivar theta', theta
         prop_iteration_log[i]=theta # put it in the proposal log
         
-        in_bounds_prefD = (0 < theta_star[0] < 1)
-        in_bounds_prefA = (0 < theta_star[1] < 1)
-        in_bounds_rho = (0 < theta_star[2] < 1)
-        in_bounds_rho2 = (0 < theta_star[3] < 1)
+        in_bounds_prefD = (0 < theta[0] < 1)
+        in_bounds_prefA = (0 < theta[1] < 1)
+        in_bounds_rho = (0 < theta[2] < 1)
+        in_bounds_rho2 = (0 < theta[3] < 1)
         
         
         # -- Are the parameters in bounds?
@@ -743,7 +632,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             #if i > 2300:
             #   print 'phi', run_pars[0]
             #print 'new phi value', new
-            r_all=SIR(theta_star, initial_pops, 1000, 0, 1, racc_pop) #log-scale params get exponentiated in the SIR module
+            r_all=SIR(theta, initial_pops, 1000, 0, 1, racc_pop) #log-scale params get exponentiated in the SIR module
             r=r_all[0]
             #print 'population sizes', r
             time_to_eq=r_all[1]
@@ -778,18 +667,6 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                         # -- record the log likelihood in the data array
                         prop_lik_log[i]=ll # we can't automatically add this to the array b/c if it's 'fail' that's a string and it can't go into a numpy array of dtype float
                         prop_lik_bounds_log[i] = 1 #in bounds
-                        
-                        # -- calculate prior probabilities where appropriate
-                        #if param_priors == True:
-                        #    p=prior(params, run_pars, est_index, i)
-                        #    prior_log[i] = p
-                        #    prop_prior_log[i] = p
-                        #    post = ll + p
-                        #else:
-                        #    post = ll
-                        #prop_post_log[i]=post
-                        #old_post = post_log[i-1][0] # retrieve the most recent ACCEPTED posterior
-                        
                         post = ll
                         prop_post_log[i]=post
                         old_post = post_log[i-1][0] # retrieve the most recent ACCEPTED posterior
