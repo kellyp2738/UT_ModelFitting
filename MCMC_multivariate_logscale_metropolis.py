@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--plot', help = 'Plot SIR curves? Will not plot if iterations > 1')
     parser.add_argument('-pop', '--pop_size', help = 'Vector of animal population sizes')
     parser.add_argument('-racc', '--racc_density', help = 'Number of raccoons')
-    parser.add_argument('-rand', '--random_chain_start', help = 'Choose random starting parameter for chain? True/False')
+    parser.add_argument('-t', '--proposal_distribution', help = 'zeroCentered or meanCentered')
     
     opts = parser.parse_args()
 
@@ -168,8 +168,8 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     # ----------------------------------------------------------------------------------------------
     
     # seed chain with parameters drawn from [0,1]
-    probability_params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
-    print 'params', probability_params
+    params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
+    print 'params', params
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
@@ -329,7 +329,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
             #run_pars=[math.exp(prop_iteration_log[0,0]), math.exp(prop_iteration_log[0,1]), math.exp(prop_iteration_log[0,2]), math.exp(prop_iteration_log[0,3])] # these are the starting values copied over from the params input file
             # no need to exponentiate; current version draws first parameter set from the appropriate interval [0,1]
             #run_pars=[prop_iteration_log[0,0], prop_iteration_log[0,1], prop_iteration_log[0,2], prop_iteration_log[0,3]] # these are the starting values copied over from the params input file
-            run_pars=probability_params # the very first params we randomly chose; scaled [0,1]
+            run_pars=params # the very first params we randomly chose; scaled [0,1]
             print 'starting parameters', run_pars
             #return
             #run_pars=prop_iteration_log[0]
@@ -569,7 +569,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
                 t_eq_log[i] = t_eq_log[i-1]   
                 #step_size_log[i] = step_size_log[i-1]
             
-    for i in range(100000,iterations):   
+    for i in range(100001,iterations):   
     #for i in range(100, iterations):
         # ----------------------------------------------------------------------------------------------
         # -- Subsequent iterations build the chain
@@ -611,9 +611,12 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
         # -- TWO OPTIONS FOR PROPOSALS --#
         # currently both are commented out so code would break here if run...
         scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
-        #theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
-        #theta = np.random.multivariate_normal(proposal_mean, 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
-
+        if theta_type == 'zeroCentered':
+            theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
+        elif theta_type == 'meanCentered':
+            theta = np.random.multivariate_normal(proposal_mean, 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
+        else:
+            return 'proposal distribution unspecified'
         #print 'multivar theta', theta
         prop_iteration_log[i]=theta # put it in the proposal log
         
@@ -813,7 +816,7 @@ pop_sizes_str=opts.pop_size
 pop_sizes_split=pop_sizes_str.split(',')
 pop_sizes=[]
 racc_pop = int(opts.racc_density)
-rand_chain_start = opts.random_chain_start
+theta_type = opts.proposal_type
 
 for item in pop_sizes_split:
     pop_sizes.append(int(item))
@@ -823,7 +826,7 @@ dir_name = opts.output_dir
 iterations = int(opts.iterations)
     
 # start the MCMC (burnin parameter is now hard-coded in the MCMC function, so its value here is set to 0)
-MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, plot=False)
+MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=False)
 
 
 
