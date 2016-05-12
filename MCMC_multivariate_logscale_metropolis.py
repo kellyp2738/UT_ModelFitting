@@ -159,7 +159,7 @@ def myiLogit(x):
 
 # -- MCMC() is the brains of the operation
 
-def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = False):
+def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot):
     
     #pdb.set_trace()
     
