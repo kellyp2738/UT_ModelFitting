@@ -169,8 +169,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, plot = Fa
     
     # seed chain with parameters drawn from [0,1]
     probability_params = [np.random.uniform(), np.random.uniform(), np.random.uniform(), np.random.uniform()]
-    params = [myLogit(x) for x in probability_params]
-    print 'params', params
+    print 'params', probability_params
     
     # ----------------------------------------------------------------------------------------------
     # -- Set SIR function to use
