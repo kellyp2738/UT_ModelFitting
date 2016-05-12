@@ -808,6 +808,7 @@ def get_Binom_prev_priors(filename):
 # -- Comment this whole bit out if importing modules from this script
 # ----------------------------------------------------------------------------------------------
 
+plot = opts.plot
 #par_file = opts.param_file
 #trans_type = opts.trans_type
 iterations = int(opts.iterations)
