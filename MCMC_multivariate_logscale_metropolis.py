@@ -816,7 +816,7 @@ pop_sizes_str=opts.pop_size
 pop_sizes_split=pop_sizes_str.split(',')
 pop_sizes=[]
 racc_pop = int(opts.racc_density)
-theta_type = opts.proposal_type
+theta_type = opts.proposal_distribution
 
 for item in pop_sizes_split:
     pop_sizes.append(int(item))
