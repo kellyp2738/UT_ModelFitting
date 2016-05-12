@@ -62,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('-prev', '--prevalence_file', help = 'CSV file containing prevalence data')
     parser.add_argument('-out', '--output_dir', help = 'Path for writing output data')
     parser.add_argument('-it', '--iterations', help = 'Number of iterations for MCMC')
-    parser.add_argument('-p', '--plot', help = 'Plot SIR curves? Will not plot if iterations > 1')
+    parser.add_argument('-p', '--plot', help = 'Plot SIR curves? Will not plot if iterations > 1', default = False)
     parser.add_argument('-pop', '--pop_size', help = 'Vector of animal population sizes')
     parser.add_argument('-racc', '--racc_density', help = 'Number of raccoons')
     parser.add_argument('-t', '--proposal_distribution', help = 'zeroCentered or meanCentered')
@@ -826,7 +826,7 @@ dir_name = opts.output_dir
 iterations = int(opts.iterations)
     
 # start the MCMC (burnin parameter is now hard-coded in the MCMC function, so its value here is set to 0)
-MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=False)
+MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=plot)
 
 
 
