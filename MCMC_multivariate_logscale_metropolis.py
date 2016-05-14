@@ -114,6 +114,7 @@ def BindLogs(accepted_log_names, iteration_log, model_out_log, prev_log, lik_log
 
 def norm_lik_logit_scale(prev_distr, output_prevs):
 
+    print prev_distr
     # -- remove nymph data from output_prevs to avoid confusion over indexes
     output_prevs = output_prevs[1:] # remove index 0
     
