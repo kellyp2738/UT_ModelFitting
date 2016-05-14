@@ -123,8 +123,8 @@ def norm_lik_logit_scale(prev_distr, output_prevs):
     psi=[]
     for theta in output_prevs:
         psi.append(math.log(theta/(1-theta)))
-    #print 'psi values', psi
-    #print 'out prev  ', output_prevs
+    print 'psi values', psi
+    print 'out prev  ', output_prevs
     
     # -- storage vector for log likelihoods
     loglik=[]
