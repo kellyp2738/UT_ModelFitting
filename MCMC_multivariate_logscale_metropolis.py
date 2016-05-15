@@ -611,8 +611,8 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
         proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
         # -- TWO OPTIONS FOR PROPOSALS --#
         # currently both are commented out so code would break here if run...
-        scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
         if theta_type == 'zeroCentered':
+            scaling_factor = np.random.multivariate_normal([0,0,0,0], 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
             theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
         elif theta_type == 'meanCentered':
             theta = np.random.multivariate_normal(proposal_mean, 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
