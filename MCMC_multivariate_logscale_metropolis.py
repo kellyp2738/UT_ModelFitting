@@ -782,6 +782,9 @@ def ln_norm_pdf(x, mu, sigma):
 
 # -- get the prevalence distributions expressed in logit scale
 def get_norm_logit_prevs(filename):
+    # NOTE: must source ~/.profile_user on Stampede for np.genfromtxt to work as expected
+    # I do not know why, because the PYTHONPATH variables in the profile ... don't exist ...
+    # but somehow source-ing that profile makes it work...
     prevs = np.genfromtxt(filename, delimiter=',')
     return prevs
 
