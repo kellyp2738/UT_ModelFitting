@@ -290,7 +290,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
     
     # -- Build a data structure for storing the adaptive step size info
     steps_log=np.zeros(shape=((len(check_steps)+1), 1)) # with block updating, all parameters have the same acceptance rate
-    steps_log[0]=0.1 #set the first step (revert to value of 0.03 if sampling from a straight normal distribution
+    steps_log[0]=0.01 #set the first step (revert to value of 0.03 if sampling from a straight normal distribution
     
     # -- Make a vector to store the acceptance rates used in step size calibration
     a_rates=np.zeros(shape=((len(check_steps)+1), 1))
@@ -384,25 +384,26 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
             # ----------------------------------------------------------------------------------------------
     
             if (i in check_steps) == True: # once we've done a few iterations, but while we're still in the burnin, we can adjust the step size to ensure proper mixing
-                #if i == interval:
-                #	old_step = 0.5
-                #else:
-                #	old_step = steps_log[cs-1]
-                it_log[cs+1]=i #log which iteration we're adjusting at
-                rate=sum(accept_rate_log[i-interval:i])/interval #number of times parameter proposal was accepted
-                a_rates[cs]=rate #should be at index [cs] b/c this is the acceptance rate for the previous iteration range
+                # fix the step size at the value that worked for mean-centered proposals
+                new_step = 0.01
+                steps_log[cs+1] = new_step
+                
+                # commenting out this so that I can fix the step size without majorly rewriting the code
+                #it_log[cs+1]=i #log which iteration we're adjusting at
+                #rate=sum(accept_rate_log[i-interval:i])/interval #number of times parameter proposal was accepted
+                #a_rates[cs]=rate #should be at index [cs] b/c this is the acceptance rate for the previous iteration range
                 #print rate
-                if rate > 0.3:
-                	steps_log[cs+1] = steps_log[cs] + 0.01 #increase step size so more proposals get rejected
-                elif rate < 0.1: #decrease step size so fewer proposals get rejected
-                	if steps_log[cs] <= 0.01:
-                		new_step = 0.01
-                		steps_log[cs+1] = new_step
-                	else:
-                		new_step = steps_log[cs] - 0.01
-                		steps_log[cs+1] = new_step
-                else:
-                    steps_log[cs+1] = steps_log[cs]
+                #if rate > 0.3:
+                #	steps_log[cs+1] = steps_log[cs] + 0.001 #increase step size so more proposals get rejected
+                #elif rate < 0.1: #decrease step size so fewer proposals get rejected
+                #	if steps_log[cs] <= 0.001:
+                #		new_step = 0.001
+                #		steps_log[cs+1] = new_step
+                #	else:
+                #		new_step = steps_log[cs] - 0.001
+                #		steps_log[cs+1] = new_step
+                #else:
+                #    steps_log[cs+1] = steps_log[cs]
                 #print('iteration log value', it_log[cs+1], 'check step', cs, 'acceptance rate', rate, 'new step', steps_log[cs+1])
                 
             	cs+=1          
