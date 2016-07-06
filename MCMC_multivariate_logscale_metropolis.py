@@ -286,7 +286,8 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
     
     # -- Specify the iterations at which to compute per-parameter acceptance rates and adjust step sizes
     interval=5000
-    check_steps=range(0+interval,50000+interval,interval)
+    check_steps=range(0, 50000, interval)[1:] 
+    #check_steps=range(0+interval,50000+interval,interval)
     
     # -- Build a data structure for storing the adaptive step size info
     steps_log=np.zeros(shape=((len(check_steps)+1), 1)) # with block updating, all parameters have the same acceptance rate
@@ -304,8 +305,8 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
     a_names = ['acceptance_rate']
     step_size_names=np.concatenate((it_names, s_names, a_names))
     
-    # -- Start a counter for how many times step size has been checked
-    cs = 0
+    # -- Start a counter for the step size log index
+    cs = 1 # steps_log[cs] where cs = 0 is the first entry in that array, which has already been entered
           
     # ----------------------------------------------------------------------------------------------
     # -- Paste all the names together for the storage of one big unified chain
@@ -386,7 +387,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
             if (i in check_steps) == True: # once we've done a few iterations, but while we're still in the burnin, we can adjust the step size to ensure proper mixing
                 # fix the step size at the value that worked for mean-centered proposals
                 new_step = 0.01
-                steps_log[cs+1] = new_step
+                steps_log[cs] = new_step
                 
                 # commenting out this so that I can fix the step size without majorly rewriting the code
                 #it_log[cs+1]=i #log which iteration we're adjusting at
@@ -545,7 +546,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
                         t_eq_log[i] = t_eq_log[i-1]   
                         #step_size_log[i] = step_size_log[i-1]
                         
-                # -- If the model didn't reach equilibruim, discard the proposal and move on to the next iteration
+                # -- If the model didn't reach equilibrium, discard the proposal and move on to the next iteration
                 else: 
                     prop_model_out_log[i]=[-999]*len(prop_model_names) #fill pop sizes w/ridiculous num to signal model failure
                     prop_t_eq_log[i]=-999 # no equilibrium; remainder of prop_logs remain at zero
@@ -570,8 +571,13 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
                 post_log[i] = post_log[i-1]
                 t_eq_log[i] = t_eq_log[i-1]   
                 #step_size_log[i] = step_size_log[i-1]
-            
-    for i in range(100001,iterations):   
+    
+    #get these variables defined once outside the for loop
+    for_cov=iteration_log[50000:99999]
+    proposal_covariance=np.cov(for_cov, rowvar=0)
+    proposal_mean=np.mean(for_cov, axis=0)
+                
+    for i in range(100000,iterations):   
     #for i in range(100, iterations):
         # ----------------------------------------------------------------------------------------------
         # -- Subsequent iterations build the chain
@@ -582,34 +588,35 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
         # ----------------------------------------------------------------------------------------------
 
         # -- save the whole log every 10,000 iterations
-        if i%1000 == 0:
-        
-            # -- print the output so the user can keep track of progress
-            print i
-            
-            # -- paste all the various numpy arrays together. they will have the same dimensions
-            data = BindLogs(accepted_log_names, iteration_log, model_out_log, prev_log, lik_log, prior_log, post_log, t_eq_log, accept_rate_log, proposed_log_names, prop_iteration_log, prop_model_out_log, prop_prev_log, prop_lik_log, prop_prior_log, prop_post_log, par_bounds_log, prop_lik_bounds_log, prop_t_eq_log) # all the logs; removed arguments: is_updated_log, Paccept_reject_log, update_index_log, 
-            accepted = data[0]
-            
-            # -- open a file (old logs will be overwritten) to save the data
-            with open(accepted_run_name, 'a') as f:
-                f.write(" ".join(map(str, accepted)))
-            #np.savetxt(accepted_run_name, accepted, delimiter=',', fmt='%20s')
-            
-            proposed = data[1]
-            with open(proposed_run_name, 'a') as g:
-                g.write(" ".join(map(str, accepted)))               
-            #np.savetxt(proposed_run_name, proposed, delimiter=',', fmt='%20s')
+        #if i%1000 == 0:
+        #
+        #    # -- print the output so the user can keep track of progress
+        #    print i
+        #    
+        #    # -- paste all the various numpy arrays together. they will have the same dimensions
+        #    data = BindLogs(accepted_log_names, iteration_log, model_out_log, prev_log, lik_log, prior_log, post_log, t_eq_log, accept_rate_log, proposed_log_names, prop_iteration_log, prop_model_out_log, prop_prev_log, prop_lik_log, prop_prior_log, prop_post_log, par_bounds_log, prop_lik_bounds_log, prop_t_eq_log) # all the logs; removed arguments: is_updated_log, Paccept_reject_log, update_index_log, 
+        #    accepted = data[0]
+        #    
+        #    # -- open a file (old logs will be overwritten) to save the data
+        #    with open(accepted_run_name, 'a') as f:
+        #        f.write(" ".join(map(str, accepted)))
+        #    #np.savetxt(accepted_run_name, accepted, delimiter=',', fmt='%20s')
+        #    
+        #    proposed = data[1]
+        #    with open(proposed_run_name, 'a') as g:
+        #        g.write(" ".join(map(str, accepted)))               
+        #    #np.savetxt(proposed_run_name, proposed, delimiter=',', fmt='%20s')
 
 	    # ----------------------------------------------------------------------------------------------
         # -- Propose new parameters through a random walk
         # ----------------------------------------------------------------------------------------------
 
+        ## SEE LINE 575 for correct definitions of variables, done outside the for-loop!
         # get the covariance matrix for the proposal distribution
         # proposal distribution is defined by ALL iterations after adaptive step size checking stops
-        for_cov=iteration_log[50000+interval:i,]
-        proposal_covariance=np.cov(for_cov, rowvar=0)
-        proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+        #for_cov=iteration_log[50000:i,]
+        #proposal_mean=iteration_log[i-1] # proposal distr. is centered on the last accepted value
+        
         # -- TWO OPTIONS FOR PROPOSALS --#
         # currently both are commented out so code would break here if run...
         if theta_type == 'zeroCentered':
