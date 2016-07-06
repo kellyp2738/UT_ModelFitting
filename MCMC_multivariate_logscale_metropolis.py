@@ -290,8 +290,11 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
     #check_steps=range(0+interval,50000+interval,interval)
     
     # -- Build a data structure for storing the adaptive step size info
-    steps_log=np.zeros(shape=((len(check_steps)+1), 1)) # with block updating, all parameters have the same acceptance rate
-    steps_log[0]=0.01 #set the first step (revert to value of 0.03 if sampling from a straight normal distribution
+    #7/2016: fix step size but don't rewrite code substantially to remove adaptive steps
+    #this initialization of the steps log just makes every entry the step size we want to use
+    steps_log=np.full(shape=((len(check_steps)+1), fill_value=0.01)
+    #steps_log=np.zeros(shape=((len(check_steps)+1), 1)) # with block updating, all parameters have the same acceptance rate
+    #steps_log[0]=0.01 #set the first step (revert to value of 0.03 if sampling from a straight normal distribution
     
     # -- Make a vector to store the acceptance rates used in step size calibration
     a_rates=np.zeros(shape=((len(check_steps)+1), 1))
