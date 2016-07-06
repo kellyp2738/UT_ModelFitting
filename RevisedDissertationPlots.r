@@ -18,7 +18,7 @@
 ##  ~/Desktop/MV_UnequalPopSizes/MV_800_200_fixed
 
 ## note: home directory on new laptop is 'kelly' not 'kellypierce':
-source("/Users/Kelly/Desktop/2014&Older/ModelFitting/R Scripts/MCMC_Source.r")
+source("/Users/Kelly/Desktop/2014_and_Older/ModelFitting/R Scripts/MCMC_Source.r")
 library(scales)
 library(coda)
 library(magicaxis)
@@ -33,16 +33,20 @@ library(magicaxis)
 # parsed data is written to file
 #setwd('~/Desktop/MV_UnequalPopSizes/')
 #setwd('~/Desktop/MV_ConstantHostPop/')
-setwd('~/Desktop/2016_redo/')
+#setwd('~/Desktop/2016_redo/')
+#setwd('~/Desktop/MeanCentered/')
+setwd('~/Desktop/zeroCentered/')
 #dirs<-grep('Multivar_Metropolis', list.files(getwd()), value=TRUE)
 #dirs<-grep('MV_', list.files(getwd()), value=TRUE)
 dirs<-grep('d', list.files(getwd()), value=TRUE)
-for(dir in dirs[3]){ 
+for(dir in dirs){ 
   #setwd('~/Desktop/BlockUpdate_ChangeKE')
   #setwd('~/Desktop/FinalModelMCMCRuns/SymTrans')
   #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
   #setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
-  setwd(file.path('~/Desktop/2016_redo/', dir))
+  #setwd(file.path('~/Desktop/2016_redo/', dir))
+  #setwd(file.path('~/Desktop/MeanCentered/', dir))
+  setwd(file.path('~/Desktop/zeroCentered/', dir))
   #chain.dirs<-grep('Run', list.files(getwd()), value=TRUE)
   #chain.dirs<-grep('Multivar', list.files(getwd()), value=TRUE)
   chain.dirs<-grep('Chain', list.files(getwd()), value=TRUE)
@@ -65,7 +69,9 @@ for(dir in dirs[3]){
     #setwd(file.path('~/Desktop/FinalModelMCMCRuns/SymTrans', dir))
     #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
     #setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
-    setwd(file.path('~/Desktop/2016_redo/', dir))
+    #setwd(file.path('~/Desktop/2016_redo/', dir))
+    #setwd(file.path('~/Desktop/MeanCentered/', dir))
+    setwd(file.path('~/Desktop/zeroCentered/', dir))
     print(chain)
     print(getwd())
     setwd(file.path(getwd(), chain))
@@ -84,7 +90,7 @@ for(dir in dirs[3]){
     
     #sort data with 20k iteration 'burnin' removed (for convergence diagnostics)
     #thin.file.burn<-thin.chain(data[20000:100000,])
-    est.file.burn<-data[100000:200000,]
+    est.file.burn<-data[125000:200000,]
     prefD.chains.burn<-cbind(prefD.chains.burn, est.file.burn[,1])
     prefA.chains.burn<-cbind(prefA.chains.burn, est.file.burn[,2])
     rhoTD.chains.burn<-cbind(rhoTD.chains.burn, est.file.burn[,3])
@@ -99,21 +105,23 @@ for(dir in dirs[3]){
   #write the sorted data to file
   #setwd(file.path('~/Desktop/MV_UnequalPopSizes', dir))
   #setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
-  setwd(file.path('~/Desktop/2016_redo/', dir))
-  write.csv(prefD.chains, file='prefD_multi_chains.csv')
-  write.csv(prefA.chains, file='prefA_multi_chains.csv')
-  write.csv(rhoTD.chains, file='rhoTD_multi_chains.csv')
-  write.csv(rhoDT.chains, file='rhoDT_multi_chains.csv')
-  write.csv(prefD.chains.burn, file='prefD_burned_multi_chains.csv')
-  write.csv(prefA.chains.burn, file='prefA_burned_multi_chains.csv')
-  write.csv(rhoTD.chains.burn, file='rhoTD_burned_multi_chains.csv')
-  write.csv(rhoDT.chains.burn, file='rhoDT_burned_multi_chains.csv')
-  write.csv(loglik.burn, file='loglik_burned_multi_chains.csv')
-  write.csv(aPrev.burn, file='aPrev_burned_multi_chains.csv')
-  write.csv(dPrev.burn, file='dPrev_burned_multi_chains.csv')
-  write.csv(dABprev.burn, file='dABprev_burned_multi_chains.csv')
-  write.csv(deer.burden, file='deer_burden_chains.csv')
-  write.csv(alt.burden, file='alt_burden_chains.csv')
+  #setwd(file.path('~/Desktop/2016_redo/', dir))
+  #setwd(file.path('~/Desktop/MeanCentered/', dir))
+  setwd(file.path('~/Desktop/zeroCentered/', dir))
+  write.csv(prefD.chains, file='prefD_multi_chains.csv', row.names=F)
+  write.csv(prefA.chains, file='prefA_multi_chains.csv', row.names=F)
+  write.csv(rhoTD.chains, file='rhoTD_multi_chains.csv', row.names=F)
+  write.csv(rhoDT.chains, file='rhoDT_multi_chains.csv', row.names=F)
+  write.csv(prefD.chains.burn, file='prefD_burned_multi_chains.csv', row.names=F)
+  write.csv(prefA.chains.burn, file='prefA_burned_multi_chains.csv', row.names=F)
+  write.csv(rhoTD.chains.burn, file='rhoTD_burned_multi_chains.csv', row.names=F)
+  write.csv(rhoDT.chains.burn, file='rhoDT_burned_multi_chains.csv', row.names=F)
+  write.csv(loglik.burn, file='loglik_burned_multi_chains.csv', row.names=F)
+  write.csv(aPrev.burn, file='aPrev_burned_multi_chains.csv', row.names=F)
+  write.csv(dPrev.burn, file='dPrev_burned_multi_chains.csv', row.names=F)
+  write.csv(dABprev.burn, file='dABprev_burned_multi_chains.csv', row.names=F)
+  write.csv(deer.burden, file='deer_burden_chains.csv', row.names=F)
+  write.csv(alt.burden, file='alt_burden_chains.csv', row.names=F)
 }
 
 ## -----------------------------------------------------------------------------------
@@ -122,33 +130,35 @@ for(dir in dirs[3]){
 ilogit = function(x) 1/{1+exp(-x)}
 # read in replicate chains, coerce to MCMC objects, and perform the gelman-rubin convergence test
 #pdf(file='~/Desktop/Multivariate_Metropolis_MultpleChains.pdf', height=5, width=7)
-for(dir in dirs[3]){
+for(dir in dirs){
   # change to appropriate directory
   #setwd('~/Desktop/MV_UnequalPopSizes/')
   #setwd(file.path('~/Desktop/MV_ConstantHostPop/', dir))
-  setwd(file.path('~/Desktop/2016_redo/', dir))
+  #setwd(file.path('~/Desktop/2016_redo/', dir))
+  #setwd(file.path('~/Desktop/MeanCentered/', dir))
+  setwd(file.path('~/Desktop/zeroCentered/', dir))
   #setwd(file.path(getwd(), dir))
   print(dir)
   
   # read data, select appropriate columns (first column is iteration number, which isn't necessary), exponentiate, and set column names
   prefD<-read.csv("prefD_multi_chains.csv")
   #prefD<-exp(prefD[,2:length(prefD[1,])])
-  prefD<-ilogit(prefD[,2:length(prefD[1,])])
+  #prefD<-ilogit(prefD[,2:length(prefD[1,])])
   names(prefD)<-rep('prefD', length(prefD[1,]))
   
   prefA<-read.csv("prefA_multi_chains.csv")
   #prefA<-exp(prefA[,2:length(prefA[1,])])
-  prefA<-ilogit(prefA[,2:length(prefA[1,])])
+  #prefA<-ilogit(prefA[,2:length(prefA[1,])])
   names(prefA)<-rep('prefA', length(prefA[1,]))
   
   rhoDT<-read.csv("rhoDT_multi_chains.csv")
   #rhoDT<-exp(rhoDT[,2:length(rhoDT[1,])])
-  rhoDT<-ilogit(rhoDT[,2:length(rhoDT[1,])])
+  #rhoDT<-ilogit(rhoDT[,2:length(rhoDT[1,])])
   names(rhoDT)<-rep('rhoDT', length(rhoDT[1,]))
   
   rhoTD<-read.csv("rhoTD_multi_chains.csv")
   #rhoTD<-exp(rhoTD[,2:length(rhoTD[1,])])
-  rhoTD<-ilogit(rhoTD[,2:length(rhoTD[1,])])
+  #rhoTD<-ilogit(rhoTD[,2:length(rhoTD[1,])])
   names(rhoTD)<-rep('rhoTD', length(rhoTD[1,]))
   
   # plot the chains
