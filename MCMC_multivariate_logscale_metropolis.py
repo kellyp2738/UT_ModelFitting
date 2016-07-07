@@ -410,7 +410,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
                 #    steps_log[cs+1] = steps_log[cs]
                 #print('iteration log value', it_log[cs+1], 'check step', cs, 'acceptance rate', rate, 'new step', steps_log[cs+1])
                 
-            	cs+=1          
+            	#cs+=1          
             
             # ----------------------------------------------------------------------------------------------
             # -- Save the step size adaptation log
