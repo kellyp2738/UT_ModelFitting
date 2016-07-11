@@ -844,7 +844,7 @@ iterations = int(opts.iterations)
 a = float(opts.inflation)
     
 # start the MCMC (burnin parameter is now hard-coded in the MCMC function, so its value here is set to 0)
-MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=plot, a)
+MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=plot, a=a)
 
 
 
