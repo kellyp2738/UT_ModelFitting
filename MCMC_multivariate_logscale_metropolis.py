@@ -66,6 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('-pop', '--pop_size', help = 'Vector of animal population sizes')
     parser.add_argument('-racc', '--racc_density', help = 'Number of raccoons')
     parser.add_argument('-t', '--proposal_distribution', help = 'zeroCentered or meanCentered')
+    parser.add_argument('-a', '--inflation', help = 'Inflation factor for covariance matrix')
     
     opts = parser.parse_args()
 
@@ -160,7 +161,7 @@ def myiLogit(x):
 
 # -- MCMC() is the brains of the operation
 
-def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_type, plot):
+def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_type, plot, a=1):
     
     #pdb.set_trace()
     
@@ -579,6 +580,7 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
     for_cov=iteration_log[50000:99999]
     proposal_covariance=np.cov(for_cov, rowvar=0)
     proposal_mean=np.mean(for_cov, axis=0)
+    print 'inflation factor = ', a
                 
     for i in range(100000,iterations):   
     #for i in range(100, iterations):
@@ -623,10 +625,10 @@ def MCMC(prev_data, dir_name, burnin, iterations, pop_sizes, racc_pop, theta_typ
         # -- TWO OPTIONS FOR PROPOSALS --#
         # currently both are commented out so code would break here if run...
         if theta_type == 'zeroCentered':
-            scaling_factor = np.random.multivariate_normal([0,0,0,0], 2*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
+            scaling_factor = np.random.multivariate_normal([0,0,0,0], a*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
             theta = [iteration_log[i-1, 0]+scaling_factor[0], iteration_log[i-1, 1]+scaling_factor[1], iteration_log[i-1, 2]+scaling_factor[2], iteration_log[i-1, 3]+scaling_factor[3]] # add the scaling factor to each previously accepted param
         elif theta_type == 'meanCentered':
-            theta = np.random.multivariate_normal(proposal_mean, 1.5*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
+            theta = np.random.multivariate_normal(proposal_mean, a*proposal_covariance) # the scaling factor is centered on zero and comes from the cov. matrix
         else:
             return 'proposal distribution unspecified'
         #print 'multivar theta', theta
@@ -839,9 +841,10 @@ prev_file = opts.prevalence_file
 prev_data = get_norm_logit_prevs(prev_file)
 dir_name = opts.output_dir
 iterations = int(opts.iterations)
+a = float(opts.inflation)
     
 # start the MCMC (burnin parameter is now hard-coded in the MCMC function, so its value here is set to 0)
-MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=plot)
+MCMC(prev_data, dir_name, 0, iterations, pop_sizes, racc_pop, theta_type, plot=plot, a)
 
 
 
